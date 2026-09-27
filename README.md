@@ -4,6 +4,7 @@ A small (1.7B parameter), self-hostable model that parses natural-language shopp
 
 **Model weights + model card:** https://huggingface.co/arghya2030/commercecore-qwen3-1.7b
 **Source code + docs:** https://github.com/arghya05/commercecore
+**Paper (PDF):** [`paper/CommerceCore_Paper.pdf`](paper/CommerceCore_Paper.pdf)
 
 **Status:** research / proof-of-concept. Read "What this is NOT" before using in production.
 
