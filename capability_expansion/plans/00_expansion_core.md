@@ -25,6 +25,35 @@ Every capability must clear the joint gate in `CAPABILITY_EXPANSION_PLAN.md` §2
 
 Required baselines for every capability, no exceptions: `fastino/gliner2.5-base-v1` (GLiNER2-base) as the mandatory first non-generative bar for any extraction/classification-shaped task; `answerdotai/ModernBERT-base`; an unfine-tuned same/larger-size open model with matched prompts; GPT cheap tier + GPT-5 flagship; Claude Haiku 4.5 + Claude Sonnet 5. Record resolved model IDs, revisions and call dates, not display names.
 
+## Exact open-source model IDs to pull, per capability
+
+Every model below is Apache-2.0 or an equivalent permissive license, matching the shipped model's own license discipline (Qwen3-1.7B, Apache-2.0) — do not substitute a noncommercial-licensed model for any of these without re-running the same license-gate check already applied project-wide (`CAPABILITY_EXPANSION_PLAN.md` §0/§2f).
+
+| Capability | Exact HF model ID to pull | Why this one, not a larger/smaller alternative |
+|---|---|---|
+| Commerce-Understand | `Qwen/Qwen3-1.7B` (same revision as shipped: `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`) | Reuses the exact frozen base already validated in production; no new base-model risk introduced |
+| Commerce-Understand baseline | `fastino/gliner2.5-base-v1` | Mandatory bar to beat before trusting the decoder approach at all (§2c item 3) |
+| Commerce-Match / Commerce-Bundle | `Qwen/Qwen3-0.6B` | Target band (150–500M) sits below the 1.7B base; smallest Qwen3 dense model still in the same well-supported family (same tokenizer/chat-template tooling as the shipped model, lowest integration risk) |
+| Commerce-Match / Commerce-Bundle baseline | `answerdotai/ModernBERT-base` (149M) | Required non-generative comparator — a 5-class or complement/compatible classifier may not need a decoder at all; this is the test |
+| Commerce-Retrieve | `Qwen/Qwen3-Embedding-0.6B` | v0 default per the original research plan §6/§10; frozen initially, no training risk on the critical retrieval path until a frozen baseline is measured |
+| Commerce-Rank | `Qwen/Qwen3-Reranker-0.6B` | Matches Retrieve's model family; avoids introducing a fourth different architecture family into the portfolio for adjacent tasks |
+| Commerce-Taste | `HuggingFaceTB/SmolLM2-135M` (+ category-specific heads, not a full decoder fine-tune) | Direct architecture evidence: DeepAffinity uses this exact size class and beats Gemini 1.5 Flash on affinity prediction (§1b, §7) — do not default to a larger model here, the dossier's own evidence says smaller is sufficient for this specific task |
+| Commerce-Agent v1 (only if triggered) | `Qwen/Qwen3-1.7B` or `Qwen/Qwen3.5-2B` | Same sibling-adapter logic as Understand; escalate to 3.5-2B only if 1.7B measurably misses required semantics, per the existing model-sweep discipline |
+
+Do not reach for a larger model "to be safe" on any of these without first measuring that the smaller one actually fails — this repeats the original project's own finding that a bigger unfine-tuned open model does not solve the task by default (README: Qwen3.5-2B and SmolLM3-3B, both larger and unfine-tuned, scored far below the fine-tuned 1.7B).
+
+## GPU / RunPod configuration — cost vs. efficiency, grounded in what actually worked
+
+**What the shipped model actually ran on, and what that number really means:** the original training run used a single RunPod **RTX PRO 4500 (32GB VRAM, $0.72/hr)** and completed in 75.2 minutes for $0.90 total (`README.md`, `MODEL_SELECTION_DECISION.md`). But the README discloses the load-bearing fact directly: **peak VRAM usage was only 2.13GB** — meaning the 32GB pod was oversized by roughly 15x for this specific job (QLoRA NF4 on a 1.7B model, microbatch 1, accumulate 32, length 2048). This is not a recommendation to use a 32GB pod again; it is evidence that a much smaller, cheaper pod would have done the identical job at the identical speed for less money.
+
+**Two other pods were provisioned earlier in the same project** (`ecommerce/plans/00_shared_core.md`, superseding an even earlier RTX 4090 assumption that was never actually used): RTX 2000 Ada (16GB, $0.24/hr) and RTX 4000 Ada (20GB, $0.28/hr), with the 4000 Ada recommended as primary for its larger headroom. Both are already far closer to the real 2.13GB requirement than the 32GB pod that ended up being used.
+
+**Recommended default for every new sibling-adapter or QLoRA run in this expansion** (Understand, and any future Agent v1 adapter): **RTX 4000 Ada, 20GB, ~$0.28/hr** — this is the balance point between cost and headroom: comfortably above the shipped run's actual 2.13GB peak (room for a somewhat larger effective batch or longer sequence bucket without OOM), while costing roughly 2.6x less per hour than the RTX PRO 4500 actually used. At the shipped run's own 75.2-minute wall time, this would bring a comparable run to roughly **$0.35**, not $0.90 — real, direct savings from right-sizing rather than defaulting to whatever pod happened to be available.
+
+For the smaller separate models (Match, Bundle, Rank, Taste — all 0.6B or smaller, and several not using QLoRA/NF4 at all): **RTX 2000 Ada, 16GB, ~$0.24/hr** is very likely sufficient headroom, but **profile the actual pod before committing a paid run**, per the project's own repeated rule (`ecommerce/plans/00_shared_core.md`: "Run a profile on the actual pod(s)... before committing any job... Do not silently truncate away target evidence"). Do not assume a smaller model needs a smaller pod without checking — a cross-encoder reranker's memory profile at a given batch size is not simply proportional to parameter count once activations and the candidate-list length are accounted for.
+
+**What to actually record from every training run, matching the shipped model's own transparency** (README's own cost table: hardware profiling, debug run, full run, generation, baseline comparisons, pod overhead, itemized to the cent): GPU model, peak `torch.cuda.max_memory_allocated`, wall-clock time, hourly rate, and total cost — logged the same way for every new capability's run, not just the first one, so future right-sizing decisions have real evidence to work from instead of defaulting to whatever pod was used last time.
+
 ## Repository layout to implement
 
 ```text
