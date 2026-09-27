@@ -1,0 +1,822 @@
+[
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "general",
+    "source": "queryner",
+    "label_origin": "native_human",
+    "split": "training",
+    "family_id_group": "queryner-train",
+    "unique_records": 7841,
+    "training_presentations": 7841
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "general",
+    "source": "esci_sampled",
+    "label_origin": "native_human",
+    "split": "training",
+    "family_id_group": "esci-sampled-train",
+    "unique_records": 8000,
+    "training_presentations": 8000
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "catalog_and_taxonomy",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-catalog-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "query_intent_and_constraints",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-query-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "retrieval_and_matching",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-retrieval-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "fashion",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-fashion",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "general",
+    "source": "synthetic_pipeline",
+    "label_origin": "simulator_verified",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-general",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  },
+  {
+    "task": "search_recovery_and_tools",
+    "vertical": "grocery",
+    "source": "synthetic_pipeline",
+    "label_origin": "weak_synthetic",
+    "split": "training",
+    "family_id_group": "synthetic-recovery-grocery",
+    "unique_records": 1,
+    "training_presentations": 1
+  }
+]

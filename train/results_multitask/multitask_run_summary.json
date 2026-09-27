@@ -1,0 +1,8 @@
+{
+  "n_steps": 1200,
+  "n_training_examples": 2130,
+  "total_time_seconds": 4651.8,
+  "total_time_minutes": 77.53,
+  "peak_vram_gb": 2.13,
+  "estimated_cost_usd": 0.9304
+}

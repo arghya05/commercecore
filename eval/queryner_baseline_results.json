@@ -1,0 +1,17 @@
+{
+  "MEASURED_HERE": true,
+  "benchmark": "QueryNER public test set (real subsample)",
+  "n_sample": 50,
+  "results": {
+    "claude_haiku_4.5": {
+      "mean_f1": 0.2633333333333333,
+      "n_examples": 50,
+      "elapsed_seconds": 50.3
+    },
+    "gpt_cheap_tier": {
+      "mean_f1": 0.29400000000000004,
+      "n_examples": 50,
+      "elapsed_seconds": 51.4
+    }
+  }
+}

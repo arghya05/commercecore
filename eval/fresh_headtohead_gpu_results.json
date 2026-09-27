@@ -1,0 +1,379 @@
+{
+  "MEASURED_HERE": true,
+  "n_queries": 6,
+  "note": "Fresh queries, not reused from any prior eval set in this project",
+  "results": {
+    "commercecore": {
+      "mean_f1": 0.39999999999999997,
+      "details": [
+        {
+          "query": "green cotton hoodie size L under 40 pounds",
+          "predicted": [
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "40"
+            }
+          ],
+          "truth": [
+            {
+              "field": "color",
+              "op": "eq",
+              "value": "green"
+            },
+            {
+              "field": "material",
+              "op": "eq",
+              "value": "cotton"
+            },
+            {
+              "field": "size",
+              "op": "eq",
+              "value": "L"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "40"
+            }
+          ],
+          "f1": 0.4
+        },
+        {
+          "query": "waterproof boots not black",
+          "predicted": [
+            {
+              "field": "waterproof",
+              "op": "eq",
+              "value": "true"
+            },
+            {
+              "field": "color",
+              "op": "eq",
+              "value": "not black"
+            }
+          ],
+          "truth": [
+            {
+              "field": "waterproof",
+              "op": "eq",
+              "value": "true"
+            }
+          ],
+          "f1": 0.6666666666666666
+        },
+        {
+          "query": "protein bar no nuts please, sugar is fine",
+          "predicted": [
+            {
+              "field": "contains_nuts",
+              "op": "eq",
+              "value": "false"
+            },
+            {
+              "field": "contains_added_sugar",
+              "op": "eq",
+              "value": "true"
+            }
+          ],
+          "truth": [
+            {
+              "field": "contains_nuts",
+              "op": "eq",
+              "value": "false"
+            }
+          ],
+          "f1": 0.6666666666666666
+        },
+        {
+          "query": "vegan chocolate with no added sugar under 5 pounds",
+          "predicted": [
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "5"
+            }
+          ],
+          "truth": [
+            {
+              "field": "contains_added_sugar",
+              "op": "eq",
+              "value": "false"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "5"
+            }
+          ],
+          "f1": 0.6666666666666666
+        },
+        {
+          "query": "portable speaker under 3 year warranty running on batteries",
+          "predicted": [
+            {
+              "field": "warranty_months",
+              "op": "gte",
+              "value": "3"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "3"
+            }
+          ],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "battery"
+            },
+            {
+              "field": "warranty_months",
+              "op": "lte",
+              "value": "36"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "wall powered toaster at least 18 months guarantee",
+          "predicted": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "wall"
+            }
+          ],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "mains"
+            },
+            {
+              "field": "warranty_months",
+              "op": "gte",
+              "value": "18"
+            }
+          ],
+          "f1": 0.0
+        }
+      ]
+    },
+    "qwen3.5-2b_unfinetuned": {
+      "mean_f1": 0.0,
+      "details": [
+        {
+          "query": "green cotton hoodie size L under 40 pounds",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "color",
+              "op": "eq",
+              "value": "green"
+            },
+            {
+              "field": "material",
+              "op": "eq",
+              "value": "cotton"
+            },
+            {
+              "field": "size",
+              "op": "eq",
+              "value": "L"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "40"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "waterproof boots not black",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "waterproof",
+              "op": "eq",
+              "value": "true"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "protein bar no nuts please, sugar is fine",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "contains_nuts",
+              "op": "eq",
+              "value": "false"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "vegan chocolate with no added sugar under 5 pounds",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "contains_added_sugar",
+              "op": "eq",
+              "value": "false"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "5"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "portable speaker under 3 year warranty running on batteries",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "battery"
+            },
+            {
+              "field": "warranty_months",
+              "op": "lte",
+              "value": "36"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "wall powered toaster at least 18 months guarantee",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "mains"
+            },
+            {
+              "field": "warranty_months",
+              "op": "gte",
+              "value": "18"
+            }
+          ],
+          "f1": 0.0
+        }
+      ]
+    },
+    "smollm3-3b_unfinetuned": {
+      "mean_f1": 0.0,
+      "details": [
+        {
+          "query": "green cotton hoodie size L under 40 pounds",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "color",
+              "op": "eq",
+              "value": "green"
+            },
+            {
+              "field": "material",
+              "op": "eq",
+              "value": "cotton"
+            },
+            {
+              "field": "size",
+              "op": "eq",
+              "value": "L"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "40"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "waterproof boots not black",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "waterproof",
+              "op": "eq",
+              "value": "true"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "protein bar no nuts please, sugar is fine",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "contains_nuts",
+              "op": "eq",
+              "value": "false"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "vegan chocolate with no added sugar under 5 pounds",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "contains_added_sugar",
+              "op": "eq",
+              "value": "false"
+            },
+            {
+              "field": "price_gbp",
+              "op": "lte",
+              "value": "5"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "portable speaker under 3 year warranty running on batteries",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "battery"
+            },
+            {
+              "field": "warranty_months",
+              "op": "lte",
+              "value": "36"
+            }
+          ],
+          "f1": 0.0
+        },
+        {
+          "query": "wall powered toaster at least 18 months guarantee",
+          "predicted": [],
+          "truth": [
+            {
+              "field": "power_source",
+              "op": "eq",
+              "value": "mains"
+            },
+            {
+              "field": "warranty_months",
+              "op": "gte",
+              "value": "18"
+            }
+          ],
+          "f1": 0.0
+        }
+      ]
+    }
+  }
+}

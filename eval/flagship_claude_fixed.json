@@ -1,0 +1,6 @@
+{
+  "MEASURED_HERE": true,
+  "system": "claude_flagship(claude-sonnet-5)",
+  "mean_f1": 0.6083333333333335,
+  "n_examples": 20
+}

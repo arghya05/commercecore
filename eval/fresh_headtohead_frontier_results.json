@@ -1,0 +1,10 @@
+{
+  "MEASURED_HERE": true,
+  "n_queries": 6,
+  "results": {
+    "claude_haiku_4.5": 0.2981481481481481,
+    "claude_sonnet_5": 0.49259259259259264,
+    "gpt_cheap_tier": 0.42777777777777776,
+    "gpt_5_flagship": 0.16666666666666666
+  }
+}

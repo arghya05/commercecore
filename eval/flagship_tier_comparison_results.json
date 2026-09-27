@@ -1,0 +1,23 @@
+{
+  "MEASURED_HERE": true,
+  "note": "SECONDARY comparison, not the primary registered baseline",
+  "results": [
+    {
+      "system": "claude_flagship(claude-sonnet-5)",
+      "mean_f1": 0.6083333333333333,
+      "n_examples": 20,
+      "parse_failures": 0,
+      "api_errors": 0,
+      "elapsed_seconds": null,
+      "note": "CORRECTED from an initial buggy run: the original script assumed resp.content[0] was always the text block, but claude-sonnet-5 sometimes returns a ThinkingBlock first, causing spurious AttributeErrors scored as 0.0. Fixed in flagship_tier_comparison.py; this is the re-verified, correct number."
+    },
+    {
+      "system": "gpt_flagship(gpt-5)",
+      "mean_f1": 0.5416666666666667,
+      "n_examples": 20,
+      "parse_failures": 0,
+      "api_errors": 0,
+      "elapsed_seconds": 306.4
+    }
+  ]
+}

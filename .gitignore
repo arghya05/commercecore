@@ -1,0 +1,15 @@
+# Large model weights and archives -- these live on Hugging Face, not GitHub.
+# See README.md for the HF repo link.
+models/
+runpod_archive/
+*.safetensors
+**/checkpoints_*/
+**/*checkpoint*step*/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store

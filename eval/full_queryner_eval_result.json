@@ -1,0 +1,10 @@
+{
+  "MEASURED_HERE": true,
+  "benchmark": "QueryNER FULL public test set",
+  "n_examples": 993,
+  "checkpoint": "step_750 (selected per MODEL_SELECTION_DECISION.md)",
+  "mean_f1": 0.49847396644979725,
+  "bootstrap_95ci_lower": 0.47494786739499734,
+  "bootstrap_95ci_upper": 0.5223204735289327,
+  "n_bootstrap_resamples": 10000
+}

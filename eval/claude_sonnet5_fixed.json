@@ -1,0 +1,14 @@
+{
+  "mean_f1": 0.5916666666666666,
+  "bootstrap_95ci": [
+    0.4922222222222223,
+    0.6894444444444443
+  ],
+  "per_vertical_mean_f1": {
+    "fashion": 0.7952380952380954,
+    "grocery": 0.6428571428571429,
+    "general": 0.29444444444444445
+  },
+  "n_total_scores": 60,
+  "note": "deterministic repeats (temperature param rejected by this model)"
+}

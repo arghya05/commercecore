@@ -1,0 +1,14 @@
+torch>=2.9.0
+transformers>=5.0.0
+protobuf>=4.0.0
+peft>=0.21.0
+bitsandbytes>=0.50.0
+accelerate>=1.15.0
+huggingface_hub>=1.30.0
+fastapi>=0.110.0
+uvicorn>=0.30.0
+pydantic>=2.0.0
+
+# Note: peft and bitsandbytes are only required for the raw-adapter loading
+# path (adapter_path=...). If serving the pre-merged model (recommended,
+# see merge_and_export.py), these two are not imported at all.
