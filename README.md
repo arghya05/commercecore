@@ -147,6 +147,20 @@ Measured latency, real requests, both environments:
 | RunPod GPU (RTX PRO 4500) | 1.4s | 0.58–1.05s |
 | Local CPU (Apple Silicon, no quantization) | 0.6s | 130–145s |
 
+### Serving cost vs. frontier API token cost — an honest comparison, corrected once already
+
+At GPU cost of $0.72/hr and our measured single-request throughput (3,429–6,207 queries/hour, no batching), self-hosted CommerceCore costs **$0.000116–$0.000210 per query**. For a typical request (~100 input tokens, ~30 output tokens), frontier API token costs are:
+
+| System | Cost/query (approx., 100 in / 30 out tokens) |
+|---|---|
+| GPT cheap tier | **$0.000033** |
+| CommerceCore (self-hosted, unbatched) | $0.000116–$0.000210 |
+| Claude Haiku 4.5 | $0.000250 |
+| Claude Sonnet 5 | $0.000750 |
+| GPT-5 flagship | $0.000950 |
+
+**Important, honest correction**: an earlier version of this comparison stated self-hosting was cheaper — that was wrong, caught and corrected here rather than left standing. At single-request, unbatched serving, GPT's cheap tier is actually the cheapest option on raw token cost. Self-hosting only beats it on cost past a breakeven of roughly 21,800 queries/hour on one GPU (achievable via request batching, which we did not measure) — below that, the honest cost argument for self-hosting is not "cheaper per token," it's **data locality** (queries never leave your infrastructure) and **beating GPT cheap tier's accuracy** on the tasks we tested (Section "How it beat the benchmark" above), not raw serving cost at low volume.
+
 ### Challenges faced in serving — real, specific, not generic
 
 1. **`peft` was imported unconditionally, breaking the common case.** `serve/inference.py` originally did `from peft import PeftModel` at module level, even though most deployments should use the pre-merged model (no adapter, no PEFT needed at all). This meant a fresh install without `peft` — the exact "quick pip install and go" case the serving package is supposed to support — crashed on import. Fixed by moving the import inside the one code path that actually needs it.
