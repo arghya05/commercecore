@@ -2,6 +2,8 @@
 
 Arghya Mukherjee · Independent Researcher
 
+Contact: [arghya05@gmail.com](mailto:arghya05@gmail.com)
+
 The revised manuscript is maintained in LaTeX so that the text, tables, and PDF have one source of truth.
 
 - [Read the research paper](CommerceCore_Paper.pdf)
