@@ -16,6 +16,8 @@ SOURCE_FILES = [
     "commercecore_paper.tex",
     "appendices.tex",
     "benchmark_results.tex",
+    "figures/workflow.tex",
+    "figures/training_dynamics.tex",
     "neurips_2026.sty",
     "evidence/numbers.tex",
     "evidence/checkpoint_history.csv",

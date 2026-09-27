@@ -1,0 +1,28 @@
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[>=Latex,
+ source/.style={draw=ccBlue!65,fill=ccBlue!4,rounded corners=2pt,
+   text width=3.5cm,minimum height=0.85cm,align=center,font=\small,inner sep=4pt},
+ result/.style={draw=black!45,rounded corners=2pt,
+   text width=3.5cm,minimum height=1.05cm,align=center,font=\small,inner sep=4pt}]
+\node[source] (human) at (0,0) {\textbf{QueryNER entity labels}\\1,500 human examples};
+\node[source] (query) at (4.2,0) {\textbf{Synthetic queries}\\450 constraint examples};
+\node[source] (catalog) at (8.4,0) {\textbf{Synthetic listings}\\180 attribute examples};
+\node[draw=ccBlue,fill=ccBlue!6,rounded corners=2pt,align=center,
+ text width=11.9cm,inner sep=6pt,font=\small] (model) at (4.2,-1.5)
+ {\textbf{Qwen3-1.7B + QLoRA}\quad NF4 backbone; rank-16 adapters\\
+  2,130 training rows; 1,200 optimizer steps; selected checkpoint 750\\
+  Selection signals: 20 constraint queries, 30 entity queries, 5 lexical probes};
+\draw[->,black!60] (human.south)--(human.south|-model.north);
+\draw[->,black!60] (query.south)--(model.north);
+\draw[->,black!60] (catalog.south)--(catalog.south|-model.north);
+\node[result] (entity) at (0,-3.2) {\textbf{Entity evaluation}\\993 queries; F1 0.498\\Selection-exposed};
+\node[result] (served) at (4.2,-3.2) {\textbf{Served constraints}\\20 queries; F1 0.683\\Development; 7/20 exact};
+\node[result] (diag) at (8.4,-3.2) {\textbf{Diagnostic queries}\\6 queries; F1 0.400\\0/6 exact sets};
+\draw[->,black!60] (entity.north|-model.south)--(entity.north);
+\draw[->,black!60] (model.south)--(served.north);
+\draw[->,black!60] (diag.north|-model.south)--(diag.north);
+\end{tikzpicture}
+\caption{\textbf{CommerceCore at a glance.} Three supervision sources share one adapted backbone. The evaluation branches use different query sets and protocols; their scores are not interchangeable estimates of generalization. Served and diagnostic exact-set counts are recomputed from archived predictions.}
+\label{fig:pipeline}
+\end{figure}

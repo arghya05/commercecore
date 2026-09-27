@@ -55,7 +55,7 @@ The released clean-run log contains one loss record for every optimizer step fro
  legend style={font=\small,at={(0.5,1.03)},anchor=south,draw=none,legend columns=2},grid=major,grid style={black!10}]
 \addplot[black!25,thin,no marks] table[x=step,y=loss,col sep=comma]{evidence/training_loss_curve.csv};
 \addlegendentry{All 1,200 logged losses}
-\addplot[blue!70!black,thick,no marks] table[x=step,y=trailing_50_mean,col sep=comma]{evidence/training_loss_curve.csv};
+\addplot[ccBlue,thick,no marks] table[x=step,y=trailing_50_mean,col sep=comma]{evidence/training_loss_curve.csv};
 \addlegendentry{Trailing 50-step mean}
 \draw[dotted,black] (axis cs:750,0.001)--(axis cs:750,3);
 \end{axis}
@@ -106,7 +106,7 @@ The exact diagnostic prompts are: ``What is the capital of France?'', ``Write a 
  xmin=0.477,xmax=0.634,ymin=0.665,ymax=0.766,grid=major,grid style={black!10},
  tick label style={font=\small},label style={font=\small},point meta=explicit symbolic,
  nodes near coords, every node near coord/.append style={font=\scriptsize,anchor=south}]
-\addplot[only marks,mark=*,blue!70!black] table[x=output_similarity,y=constraint_f1,meta=step,col sep=comma]{evidence/checkpoint_history.csv};
+\addplot[only marks,mark=*,ccBlue] table[x=output_similarity,y=constraint_f1,meta=step,col sep=comma]{evidence/checkpoint_history.csv};
 \addplot[black!55,dashed,no marks] coordinates {(0.5175,0.7500) (0.6143,0.7250)};
 \addplot[only marks,mark=o,mark size=4pt,black,thick] coordinates {(0.6143,0.7250)};
 \end{axis}

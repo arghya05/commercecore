@@ -3,9 +3,9 @@ The benchmark tables retain the original study's entity-segmentation, constraint
 
 \begin{table}[htbp]
 \centering\small
-\caption{QueryNER entity-set F1. The CommerceCore evaluation uses 993 examples, including the 30 used during checkpoint selection. API runs use only the first 50 examples and a two-label prompt. The rows are not a matched comparison.}
+\caption{\textbf{QueryNER entity segmentation.} The CommerceCore evaluation uses 993 examples, including the 30 used during checkpoint selection. API runs use only the first 50 examples and a two-label prompt. The rows are not a matched comparison.}
 \label{tab:queryner-benchmark}
-\begin{tabularx}{\linewidth}{@{}lrrX@{}}
+\begin{tabularx}{\linewidth}{@{}lrr>{\raggedright\arraybackslash}X@{}}
 \toprule
 System & Queries & Mean F1 & Evaluation scope \\
 \midrule
@@ -19,9 +19,9 @@ GPT-4o mini & 50 & 0.294 & First 50; same restricted label prompt. \\
 
 \begin{table}[htbp]
 \centering\small
-\caption{Constraint-extraction mean F1 on the 20 development queries. API rows are three-repeat aggregates (60 scores per system); local-model rows are single evaluations. Prompt, decoding, and selection differences prevent attributing score differences to model specialization.}
+\caption{\textbf{Constraint extraction on 20 development queries.} API rows are three-repeat aggregates (60 scores per system); local-model rows are single evaluations. Prompt, decoding, and selection differences prevent attributing score differences to model specialization.}
 \label{tab:constraint-benchmark}
-\begin{tabularx}{\linewidth}{@{}lrX@{}}
+\begin{tabularx}{\linewidth}{@{}lr>{\raggedright\arraybackslash}X@{}}
 \toprule
 System & Mean F1 & Recorded protocol \\
 \midrule
@@ -42,9 +42,9 @@ The served-model archive contains all 20 predictions and labels. Rescoring repro
 
 \begin{table}[htbp]
 \centering\small
-\caption{All seven systems from the six-query diagnostic comparison, retaining the original harder-query results. API values are stored aggregates; local-model values are recomputed from saved parsed predictions. Provider-side prompts and raw generations are incomplete, so this is descriptive evidence on six cases.}
+\caption{\textbf{Six-query diagnostic comparison.} All seven systems from the original harder-query evaluation are retained. API values are stored aggregates; local-model values are recomputed from saved parsed predictions. Provider-side prompts and raw generations are incomplete, so this is descriptive evidence on six cases.}
 \label{tab:diagnostic-benchmark}
-\begin{tabularx}{\linewidth}{@{}lrX@{}}
+\begin{tabularx}{\linewidth}{@{}lr>{\raggedright\arraybackslash}X@{}}
 \toprule
 System & Mean F1 & Available evidence \\
 \midrule

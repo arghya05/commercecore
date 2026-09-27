@@ -3,9 +3,11 @@
   "mode": "public preprint; default build excludes optional conference checklist",
   "top_level_tex": "commercecore_paper.tex",
   "source_files_sha256": {
-    "commercecore_paper.tex": "a162f20e0aec4979786e0d99d9783d6f16329dd86c46a9da52441bf489712385",
-    "appendices.tex": "9edf22d7a1f84c40f513d3fb57e24160a548ec31af0160a838daf9ad1decfc96",
-    "benchmark_results.tex": "7ae1a5e5fcd6857e109453b0260f1b25276e762488a092744070f683fda57d70",
+    "commercecore_paper.tex": "2086ebdbd44d31ca42ed0d72a2bea54964114d83ed6ece370a39fafe4a19af82",
+    "appendices.tex": "14fe90859be63192b87f0ef3a739a053ed3ea27968da406cd8bcc8ff6e4fc616",
+    "benchmark_results.tex": "a0b4627862ae24e9978e61f26ee06b444ced6480847f30df78a5b2367ea633d4",
+    "figures/workflow.tex": "eacab91ea6c1d1bf94de6cfee33bf2a7a7dd0ffbb7159a230ebb57b78fd09815",
+    "figures/training_dynamics.tex": "ed83666783eee1ad8da481bad463d608044cd038249a7fcd4b192863cbb64f5b",
     "neurips_2026.sty": "c3fc2894e83d2517ca18b66741d6c595986d97957dc08ec08bb2125a7ec4555a",
     "evidence/numbers.tex": "25f449fd7a7a455890f0bf3c9a04b7997ab73ff7b65b65d819bc66e31b7a3c51",
     "evidence/checkpoint_history.csv": "c9ee664b9e15849d94cdf0059e755a242b135c04c0ee43d206d573b1bb5ab613",
@@ -15,8 +17,8 @@
     "evidence/loss_window_rows.tex": "12c4df15d4b50684490d801ad6b287e7777b32eadb721650759f7fe79f39702c",
     "checklist.tex": "dc2f14c5c8d0bc739ac86ad33e0d4fd05f3c48f30317a50f28171aa672411c99"
   },
-  "public_pdf_sha256": "07d4c691a97ea24f2dd6a60025652fdf7da53de280876450e54ec853c297dff7",
-  "source_zip_sha256": "f389c0558e1d53efe0adaba083af88981313505c90d7290e44568399fbb96b33",
+  "public_pdf_sha256": "f54974ea437baf835988a7b5a2252977635179d103e0edebd50b1379b8d6e741",
+  "source_zip_sha256": "b68371cebd470a3014dfc8cc98521a10f0d1d690e166e094704038829f25892d",
   "validation": "Compiled successfully; no undefined citations/references, missing glyphs, or overfull boxes in final log",
   "boundary": "Local Tectonic compilation; arXiv server compilation and moderation have not been performed"
 }

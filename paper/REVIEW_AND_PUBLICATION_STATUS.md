@@ -32,6 +32,7 @@ This revision prepares a grounded research preprint, with a compiled PDF and a s
 - Added `audit_evidence.py`, reproducible offline results, input hashes, and reconstructed seed-42 QueryNER sample IDs.
 - Restored benchmark tables and all original supported served/open-model results after inspecting the ignored `runpod_archive`; mirrored the necessary inputs under `paper/evidence/archive/` with versioned Hugging Face links and hashes.
 - Added the complete 1,200-step training-loss plot, approximate epoch summaries, exact checkpoint-loss joins, and clickable links from numerical results to their evidence. The archived 2,130-row training mixture matches the reconstructed records in order.
+- Polished the presentation within the unmodified NeurIPS preprint style: a focused abstract and contribution statement, a vector workflow diagram, paired training-dynamics panels, and a main table separating mean F1, micro-F1, and exact-set correctness. The loss equation explicitly matches the implemented averaging over completion tokens and accumulated examples. Benchmark measurements and raw artifacts are preserved.
 - Preserved original experiment files. No model was retrained, no API baseline was rerun, and no new human annotation was collected.
 - Prepared a public preprint using the official NeurIPS 2026 style in `preprint` mode. This does not imply submission or acceptance at NeurIPS.
 

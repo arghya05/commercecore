@@ -9,6 +9,12 @@
 \usepackage{tikz,pgfplots}
 \usetikzlibrary{arrows.meta,positioning}
 \pgfplotsset{compat=1.18}
+\definecolor{ccBlue}{HTML}{0072B2}
+\definecolor{ccOrange}{HTML}{D55E00}
+\pgfplotsset{commerceaxis/.style={
+ tick label style={font=\footnotesize},label style={font=\small},
+ grid=major,grid style={black!10},axis line style={black!50},
+ scaled ticks=false}}
 \usepackage[hyphens]{url}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,
@@ -28,19 +34,26 @@
 \maketitle
 
 \begin{abstract}
-Structured shopping-query extraction requires both schema compliance and faithful interpretation of user constraints. We study CommerceCore, a 1.7-billion-parameter Qwen3 model adapted with QLoRA using 1,500 human-annotated QueryNER examples, 450 synthetic query examples, and 180 synthetic catalog examples. The recorded training run takes 75.2 minutes, corresponding to an estimated GPU charge of \$0.90 at the recorded hourly rate. The selected checkpoint has a recorded mean per-query entity-set F1 of 0.498 on 993 QueryNER examples and constraint-set F1 of 0.725 on 20 development queries. These scores require qualification: 30 QueryNER test examples informed checkpoint selection, and available API baselines use a different sample and an incomplete label vocabulary. An offline audit identifies 374 distinct synthetic queries and eight query groups with conflicting target sets. Reanalysis of six diagnostic predictions gives mean F1 of 0.400, micro-F1 of 0.381, and no exact-set matches, exposing failures in completeness, negation, and normalization. The evidence supports low-budget implementation feasibility, but does not establish superiority over general-purpose models or production reliability. We provide a traceable account of the implementation, distinguish recorded measurements from reproducible offline analyses, and identify the conditions required to test stronger claims.
+Small language models offer a practical way to convert shopping queries into executable constraints, but partial extraction accuracy can obscure whether the complete request is represented correctly. We study CommerceCore, a Qwen3-1.7B model adapted with QLoRA on 2,130 examples spanning entity segmentation, query constraints, and catalog attributes. The recorded run takes 75.2 minutes at an estimated GPU cost of \$0.90. Archived served-model predictions reproduce mean constraint-set F1 of 0.683 on 20 development queries, with seven exact-set matches; six harder diagnostic queries yield F1 of 0.400 and no exact-set matches. A separate aggregate records entity-set F1 of 0.498 on 993 QueryNER examples. We connect these results to the complete training-loss trace, eight checkpoint evaluations, and an executable audit of data and evaluation integrity. The audit identifies eight groups of inconsistent synthetic targets, test examples used for checkpoint selection, and an API baseline prompt covering only two of 17 entity labels. These conditions limit comparative and generalization claims. The contribution is a reproducible empirical account of low-budget adaptation and the gap between partial extraction scores and faithful constraint sets, with public code, model artifacts, and result-level provenance.
 \end{abstract}
 
 \section{Introduction}
-Shopping queries combine product descriptions with constraints on attributes, price, and usage. A query such as ``black waterproof trainers under 80 pounds'' requires identifying a color, interpreting an attribute as Boolean, and mapping a price phrase to a catalog field. A syntactically valid JSON response can still omit a requirement or reverse its meaning. When search systems execute these constraints, such errors change the products a user sees.
+\label{sec:intro}
+Shopping queries express requirements on product attributes, price, and usage. Converting ``black waterproof trainers under 80 pounds'' into a color constraint alone produces valid JSON and earns partial extraction credit, yet loses two requirements. An executable search representation must preserve both the meaning and the completeness of the request. This distinction motivates evaluating whole constraint sets alongside per-query F1.
 
-A small generative model offers a practical interface: the same backbone can produce structured outputs for query segmentation, constraint extraction, and catalog attributes. Its usefulness depends on more than parameter count. Training targets must consistently cover what the input expresses, and evaluation must provide comparable evidence to every system. The central research question is therefore: \emph{under what conditions does task specialization provide an effective and economical model for structured commerce queries?}
+A small generative model can share one structured-output interface across query segmentation, constraint extraction, and catalog attributes. CommerceCore implements this approach with Qwen3-1.7B~\cite{qwen3,qwenmodel}, adapting it on human entity annotations and synthetic commerce examples. Figure~\ref{fig:pipeline} summarizes the training mixture and evaluation stages. The practical question is how much evidence a low-budget adaptation study provides about extraction quality and deployment readiness.
 
-We investigate this question through CommerceCore, a Qwen3-1.7B model~\cite{qwen3,qwenmodel} adapted on real and synthetic examples. We examine three narrower questions supported by the available artifacts. \textbf{RQ1:} What resource use and task behavior are recorded for this adaptation? \textbf{RQ2:} Do the data and evaluation protocols support comparative accuracy claims? \textbf{RQ3:} What do checkpoint trajectories and saved predictions reveal about its limits? The broader effects of data composition, out-of-distribution robustness, and deployment configuration require additional controlled experiments.
+The archived run demonstrates inexpensive adaptation, while its predictions expose a gap between partial overlap and complete extraction: served-model F1 of 0.683 corresponds to only seven exact matches among 20 development queries. On six harder cases, F1 remains 0.400 despite zero exact matches. Understanding these observations requires examining how targets were generated, which examples informed checkpoint selection, and how baselines were prompted.
 
-The recorded run demonstrates a small incremental training budget. However, auditing the artifacts changes the interpretation of its accuracy results: the constraint set was used throughout development, part of the QueryNER test set informed selection, and the available QueryNER API prompt names only two of 17 entity types. Mechanically accepted synthetic examples also contain conflicting targets. These issues affect the inference drawn from a score even when its arithmetic is correct.
+We organize the study around three questions. \textbf{RQ1} characterizes recorded compute and task performance. \textbf{RQ2} tests whether the data and evaluation protocols support model comparisons. \textbf{RQ3} examines checkpoint behavior and semantic failures in the saved predictions.
 
-Our contributions are: (1) an implementation-level account of three-task adaptation, including the data mixture, objective, checkpoint history, and resource use; (2) a reproducible audit of target consistency, query overlap, baseline label coverage, and selection exposure; and (3) case-level analysis of all six saved diagnostic predictions, including micro-F1 and exact-set accuracy. We use established adaptation methods and make no novel-architecture or state-of-the-art claim. The study connects a concrete low-budget implementation to the conclusions its evidence can support.
+\paragraph{Contributions.}
+\begin{enumerate}
+\item \textbf{A traceable adaptation study.} We document the three-task mixture, QLoRA configuration, complete 1,200-step loss trace, eight checkpoints, and released serving artifact (Sections~\ref{sec:method} and~\ref{sec:results}).
+\item \textbf{Result-level verification.} We reproduce the archived training mixture in order and rescore all 20 served-model and six diagnostic predictions, reporting F1 together with exact-set correctness (Section~\ref{sec:results}).
+\item \textbf{An executable integrity audit.} We identify inconsistent targets, checkpoint-selection exposure, and restricted baseline label coverage, and connect each finding to public evidence (Section~\ref{sec:protocol}; Appendix~\ref{app:provenance}).
+\end{enumerate}
+The contribution is empirical: it establishes an inspectable implementation and its evaluation boundaries. The available study does not isolate gains from fine-tuning, multitask learning, or synthetic data; those questions require the controlled experiments specified in Appendix~\ref{app:future}.
 
 \section{Related Work}
 \paragraph{Commerce query understanding.}
@@ -83,28 +96,14 @@ The query generator samples a structured scenario in code and asks an API model,
 
 The query path constructs an intermediate contract by finding literal value substrings or predefined Boolean surface forms, omitting constraints with no match. A validator checks schema structure, span binding, and a blocklist of generic phrases. Although the validator supports simulated execution, the scaled query-generation call supplies neither tool calls nor a catalog; execution correctness is not checked on that path.
 
-The writer then serializes the \emph{original scenario constraints}, rather than the filtered contract that passed validation (Figure~\ref{fig:pipeline}). Acceptance of that contract therefore does not guarantee grounding of every saved target. Substring binding also cannot prove completeness or semantic fidelity. For example, finding an attribute word does not by itself resolve whether it is negated.
+The writer then serializes the \emph{original scenario constraints}, rather than the filtered contract that passed validation. Acceptance of that contract therefore does not guarantee grounding of every saved target. Substring binding also cannot prove completeness or semantic fidelity. For example, finding an attribute word does not by itself resolve whether it is negated.
 
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[node distance=4mm,>=Latex,
- box/.style={draw=black!60,rounded corners=2pt,align=center,font=\small,text width=11.7cm,inner sep=4pt}]
-\node[box] (scenario) {Programmatic scenario $\rightarrow$ API paraphrase $\rightarrow$ query text};
-\node[box,below=of scenario] (validate) {Filtered contract: schema, evidence-span, and generic-phrase checks};
-\node[box,below=of validate,fill=black!5] (save) {Saved completion uses original scenario labels\\Validation does not cover every saved label};
-\node[box,below=of save] (mix) {Mix with QueryNER and catalog examples $\rightarrow$ QLoRA $\rightarrow$ checkpoint diagnostics};
-\draw[->] (scenario)--(validate);
-\draw[->] (validate)--node[right,font=\scriptsize]{accept}(save);
-\draw[->] (save)--(mix);
-\end{tikzpicture}
-\caption{The implemented query-data path. The discrepancy between the validated contract and the saved target is an observed implementation property.}
-\label{fig:pipeline}
-\end{figure}
+\input{figures/workflow.tex}
 
 \subsection{Training configuration}
-The base is Qwen3-1.7B, distributed under Apache 2.0~\cite{qwenmodel}. Training uses 4-bit NF4 with double quantization and bfloat16 computation; LoRA rank 16, alpha 32, and dropout 0.05; and adapters on the attention query/key/value/output and feed-forward gate/up/down projections. Gradient checkpointing is enabled. For prompt $p_i$ and completion $y_i$, training minimizes completion-token negative log likelihood:
+The base is Qwen3-1.7B, distributed under Apache 2.0~\cite{qwenmodel}. Training uses 4-bit NF4 with double quantization and bfloat16 computation; LoRA rank 16, alpha 32, and dropout 0.05; and adapters on the attention query/key/value/output and feed-forward gate/up/down projections. Gradient checkpointing is enabled. For prompt $p_i$ and retained completion tokens $y_i$, each optimizer step averages token-normalized losses over eight accumulated examples $\mathcal{B}$:
 \begin{equation}
-\mathcal{L}(\theta)=-\sum_i\sum_{t\in y_i}\log p_\theta(y_{i,t}\mid p_i,y_{i,<t}).
+\mathcal{L}_{\mathcal{B}}(\theta)=-\frac{1}{|\mathcal{B}|}\sum_{i\in\mathcal{B}}\frac{1}{|y_i|}\sum_{t\in y_i}\log p_\theta(y_{i,t}\mid p_i,y_{i,<t}).
 \end{equation}
 Prompt tokens are masked, an end-of-sequence token is appended, and the concatenated sequence is truncated to 512 tokens. AdamW uses learning rate $10^{-4}$, microbatch one, and eight accumulation steps. The once-shuffled mixture is cycled sequentially without task reweighting or epoch reshuffling. The training seed is 42. There are 1,200 optimizer steps, with evaluation every 150 steps, corresponding to approximately 4.51 passes through 2,130 rows. The selected step 750 represents 2.82 passes. Checkpoint task decoding is greedy with 100 new tokens, plain prefixes, and no constrained JSON decoder.
 
@@ -143,24 +142,25 @@ The full QueryNER file records mean F1 0.498474 and a 10,000-resample percentile
 
 \section{Results and Analysis}
 \label{sec:results}
-\subsection{Task performance and training-target consistency}
-Table~\ref{tab:results} reports the supported task results. ``Recorded'' denotes an available aggregate; ``recomputed'' denotes rescoring saved predictions. The full-file QueryNER result is lower than the 30-example selection-subset score, but different example populations and evaluation stages prevent attributing the gap to one cause. The 20-query score is developmental and cannot certify final generalization.
+\subsection{Task performance and complete constraint sets}
+Table~\ref{tab:results} distinguishes stored aggregates from statistics recomputed using saved predictions. Exact-set correctness is available for the 20 served-model and six diagnostic queries. The full-file QueryNER result is lower than the 30-example selection-subset score, but different example populations and evaluation stages prevent attributing the gap to one cause. The 20-query score is developmental and cannot certify final generalization.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
-\caption{CommerceCore results and evidence scope. These evaluations use different example populations and do not constitute interchangeable test estimates.}
+\caption{\textbf{Partial overlap and complete extraction.} Mean F1 averages per-query set F1; micro-F1 pools triples; Exact counts wholly correct sets. A dash denotes an unavailable statistic. Recorded aggregates and rescored predictions use different example populations and evaluation stages.}
 \label{tab:results}
-\begin{tabular}{lrrl}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrrl@{}}
 \toprule
-Evaluation & $n$ & $\Fmacro$ & Evidence \\
+Evaluation & $n$ & Mean F1 & Micro-F1 & Exact & Evidence \\
 \midrule
-Constraint development, step 750 & 20 & 0.725 & Recorded checkpoint aggregate \\
-Served-model development & 20 & 0.683 & Recomputed from predictions \\
-QueryNER selection subset, step 750 & 30 & 0.556 & Recorded checkpoint aggregate \\
-QueryNER full local test file & 993 & 0.498 & Recorded final aggregate \\
-Additional diagnostic queries & 6 & 0.400 & Recomputed from predictions \\
+Constraint checkpoint 750 & 20 & 0.725 & --- & --- & Aggregate \\
+Served-model development & 20 & 0.683 & 0.697 & 7/20 & Predictions \\
+QueryNER checkpoint 750 & 30 & 0.556 & --- & --- & Aggregate \\
+QueryNER full local test & 993 & 0.498 & --- & --- & Aggregate \\
+Harder-query diagnostics & 6 & 0.400 & 0.381 & 0/6 & Predictions \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 The offline audit finds \SyntheticUniqueN{} distinct normalized queries in 450 synthetic rows, with \SyntheticDuplicateN{} repeated rows beyond the first occurrence. Eight query groups, containing 20 rows, have conflicting target \emph{sets}; list-order differences are ignored. For example, ``black waterproof windbreaker size S'' is paired with color alone in one row and color plus waterproof status in another. The prompt supplies no scenario identifier that could distinguish these targets. Target lengths are one constraint in 192 rows, two in 238, and three in 20; none contains four. No current query row matches the generic-phrase blocklist. This verifies phrase removal, not linguistic naturalness or semantic fidelity. Historical labels are preserved so that edits do not silently sever their connection to the recorded model.
@@ -174,36 +174,18 @@ S(A,B)=\frac{|A\cap B|}{\max(|A|,|B|)},
 \end{equation}
 with one for two empty sets and zero if only one is empty. It measures lexical agreement: a correct paraphrase can lower it, while a shared wrong answer can raise it. It is not a validated measure of retained general capability.
 
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}
-\begin{axis}[width=0.95\linewidth,height=5.2cm,xlabel={Optimizer step},ylabel={Logged score},
- xmin=120,xmax=1230,ymin=0.45,ymax=0.79,xtick={150,300,450,600,750,900,1050,1200},ytick={0.5,0.6,0.7},
- tick label style={font=\small},label style={font=\small},
- legend style={font=\small,at={(0.5,1.03)},anchor=south,draw=none,legend columns=1},grid=major,grid style={black!10}]
-\addplot[blue!70!black,mark=*,thick] table[x=step,y=constraint_f1,col sep=comma]{evidence/checkpoint_history.csv};
-\addlegendentry{Constraint F1 ($n=20$)}
-\addplot[orange!80!black,mark=square*,thick] table[x=step,y=queryner_f1,col sep=comma]{evidence/checkpoint_history.csv};
-\addlegendentry{QueryNER F1 ($n=30$)}
-\addplot[black!65,mark=triangle*,dashed,thick] table[x=step,y=output_similarity,col sep=comma]{evidence/checkpoint_history.csv};
-\addlegendentry{Base-output similarity (5 probes)}
-\draw[dotted,black] (axis cs:750,0.45)--(axis cs:750,0.79);
-\end{axis}
-\end{tikzpicture}
-\caption{All eight recorded checkpoints. The dotted line marks selected step 750. Similarity and extraction F1 are different quantities despite sharing a plotting scale.}
-\label{fig:checkpoints}
-\end{figure}
+\input{figures/training_dynamics.tex}
 
 The historical selection note chooses step 750, where output similarity is highest (0.6143), constraint F1 is 0.7250, and QueryNER subset F1 is 0.5562. At step 1,200 these are 0.4886, 0.7400, and 0.5298. Step 600 maximizes QueryNER subset F1 and step 1,050 maximizes constraint F1 (Figure~\ref{fig:checkpoints}). Pareto analysis over all three logged signals retains steps 150, 300, 600, 750, 900, and 1,050. Step 750 is one nondominated choice, not a uniquely optimal checkpoint. It was selected after observing the trajectories, without a prespecified scalar objective or threshold. The later similarity decline establishes output drift on these probes, not catastrophic forgetting or a causal effect of overtraining.
 
 The complete 1,200-step loss trace, approximate epoch summaries, and exact losses at all eight checkpoints are included in Appendix~\ref{app:training-logs}. The mean logged loss decreases from 0.2136 over steps 1--266 to 0.0246 over the final partial pass (steps 1,066--1,200). These are training-loss summaries, not held-out loss estimates; the decline does not establish better extraction accuracy or preserved general capability.
 
-\subsection{Diagnostic errors}
+\subsection{Error analysis: completeness, negation, and normalization}
 The six saved predictions contain nine predicted triples and twelve gold triples, with four matches. Pooled precision is 0.444, recall is 0.333, and micro-F1 is \FreshMicroF{}. Mean per-query F1 is 0.400, but exact-set accuracy is 0/6. Partial overlap therefore coexists with an incorrect constraint set on every example. Table~\ref{tab:errors} reports every case, including the distinction between permitting sugar and requiring its presence, and errors in field, operator, and unit normalization.
 
 \begin{table}[t]
 \centering\small
-\caption{All six CommerceCore diagnostic cases. Prediction fields are abbreviated here; rescoring uses the exact stored triples.}
+\caption{\textbf{All six diagnostic cases.} Prediction fields are abbreviated for readability; scoring uses the exact stored triples. Partial F1 can coexist with omitted requirements, incorrect normalization, or incomplete gold annotation.}
 \label{tab:errors}
 \renewcommand{\arraystretch}{1.12}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.31\linewidth}>{\raggedright\arraybackslash}p{0.25\linewidth}r>{\raggedright\arraybackslash}X@{}}
@@ -222,7 +204,7 @@ Query & Saved prediction & F1 & Observation \\
 
 Gold-label scope also limits interpretation. The boots example has only a waterproof target, omitting the negative color condition even though the broader schema supports \code{neq}. ``Vegan'' is absent from both the chocolate target and the empty development oat-milk target. Scores measure agreement with these restricted annotations, not complete shopping-query understanding. These cases illustrate errors but cannot establish their prevalence.
 
-\section{Efficiency, Limitations, and Implications}
+\section{Efficiency and Limitations}
 \label{sec:limits}
 \paragraph{Recorded compute and cost.}
 The run summary records 4,510.6 seconds (75.18 minutes); at the encoded historical rate of \$0.72 per GPU hour, the estimated charge is \$0.9021. The timer includes periodic evaluation and checkpointing but excludes earlier loading and base-probe generation. Peak \code{torch.cuda.max\_memory\_allocated} is recorded as 2.13 GiB, which excludes reserved and non-PyTorch device memory. It is not a minimum hardware requirement. The project identifies an RTX PRO 4500 with 32 GB; the summary does not embed a hardware trace.
@@ -245,7 +227,7 @@ The public artifacts are the \href{https://github.com/arghya05/commercecore}{Git
 The standard-library script \href{https://github.com/arghya05/commercecore/blob/main/paper/audit_evidence.py}{\nolinkurl{paper/audit_evidence.py}} recounts rows, reproduces the archived seed-42 mixture in order, checks exact overlaps and conflicting target sets, computes the restricted-label ceiling, rescores the 20 served-model and six diagnostic predictions, and regenerates loss and checkpoint data. It saves \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/audit_results.json}{machine-readable results}, reconstructed sample IDs, and SHA-256 hashes. Small archive inputs and the historical mixture are mirrored under \path{paper/evidence/archive/} so the audit can run from the GitHub checkout without downloading model weights. Full-test per-example QueryNER generations and a complete pinned training environment remain unavailable, and several original inference scripts retain pod-specific paths. These offline checks are distinct from rerunning model inference.
 
 \section{Conclusion}
-CommerceCore is a concrete case study of low-budget multitask adaptation for structured shopping queries. Its recorded run supports implementation feasibility, while saved predictions expose semantic errors despite partial set overlap. Auditing the artifacts identifies conflicting synthetic targets, test examples used for checkpoint selection, and an incomplete baseline label vocabulary. These findings constrain the claims supported by the current scores and provide executable checks for future studies. Strong comparative conclusions require consistent supervision, matched baselines, and an independent final evaluation.
+CommerceCore documents low-budget adaptation for structured commerce queries through public training and inference artifacts. Its archived results show why partial set overlap is insufficient to characterize faithful extraction: mean F1 of 0.683 on 20 development queries corresponds to seven complete sets, while six harder cases yield no complete set despite mean F1 of 0.400. The training history and integrity audit explain how to interpret this evidence without attributing unmeasured causes. Consistent target construction, matched baselines, and an independent final test are the next requirements for establishing whether the approach generalizes. The released code, predictions, logs, and audit make that extension directly inspectable.
 
 \begin{ack}
 The project used Anthropic and OpenAI models for API comparisons and AI assistance. Synthetic query generation names an Anthropic model in its script. AI assistance was used in manuscript preparation and artifact review. This disclosure does not substitute for verification of labels, measurements, or citations. No complete funding or expenditure record is established by the local artifacts.

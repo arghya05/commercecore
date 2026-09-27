@@ -1,0 +1,41 @@
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\textbf{(a) Training objective}\par\smallskip
+\begin{tikzpicture}
+\begin{axis}[commerceaxis,width=0.92\linewidth,height=5.0cm,
+ xlabel={Optimizer step},ylabel={Loss (log scale)},
+ xmin=0,xmax=1200,ymode=log,xtick={0,300,600,900,1200},
+ legend style={font=\footnotesize,at={(0.5,1.02)},anchor=south,draw=none}]
+\addplot[black!20,thin,no marks] table[x=step,y=loss,col sep=comma]{evidence/training_loss_curve.csv};
+\addlegendentry{All 1,200 steps}
+\addplot[ccBlue,thick,no marks] table[x=step,y=trailing_50_mean,col sep=comma]{evidence/training_loss_curve.csv};
+\addlegendentry{Trailing 50-step mean}
+\addlegendimage{black!70,dotted,no marks}
+\addlegendentry{Selected checkpoint 750}
+\draw[dotted,black!70] (axis cs:750,0.001)--(axis cs:750,3);
+\end{axis}
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\textbf{(b) Checkpoint diagnostics}\par\smallskip
+\begin{tikzpicture}
+\begin{axis}[commerceaxis,width=0.92\linewidth,height=5.0cm,
+ xlabel={Optimizer step},ylabel={Logged score},
+ xmin=120,xmax=1230,ymin=0.45,ymax=0.79,xtick={150,450,750,1050},ytick={0.5,0.6,0.7},
+ legend style={font=\footnotesize,at={(0.5,1.02)},anchor=south,draw=none}]
+\addplot[ccBlue,mark=*,mark size=1.5pt,thick] table[x=step,y=constraint_f1,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{Constraint F1 ($n=20$)}
+\addplot[ccOrange,mark=square*,mark size=1.5pt,thick] table[x=step,y=queryner_f1,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{Entity F1 ($n=30$)}
+\addplot[black!65,mark=triangle*,mark size=1.5pt,dashed,thick] table[x=step,y=output_similarity,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{Output similarity (5 probes)}
+\draw[dotted,black!70] (axis cs:750,0.45)--(axis cs:750,0.79);
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
+\caption{\textbf{Training loss and checkpoint behavior answer different questions.} (a) The training objective decreases while individual steps fluctuate. (b) Task scores and lexical agreement with the base model vary across the eight checkpoints. Dotted lines identify selected step 750. Similarity is not a general-capability score, and no held-out loss curve was recorded.}
+\label{fig:checkpoints}
+\end{figure}
