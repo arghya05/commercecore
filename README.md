@@ -2,7 +2,8 @@
 
 A small (1.7B parameter), self-hostable model that parses natural-language shopping queries into structured constraints — trained for under $10 in total compute + API cost. Beats every tested frontier model on the primary held-out benchmarks; an honest, independent fresh-query test below shows this advantage does not hold universally — read that section before relying on any headline number.
 
-**Model on Hugging Face:** https://huggingface.co/arghya2030/commercecore-qwen3-1.7b
+**Model weights + model card (download here): https://huggingface.co/arghya2030/commercecore-qwen3-1.7b**
+
 **Status:** research / proof-of-concept. Read "What this is NOT" before using in production.
 
 ---
