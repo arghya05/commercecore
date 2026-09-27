@@ -91,6 +91,17 @@ These are starting points to smoke-test against, not settings to accept blindly 
 
 **KV-cache sizing for serving** (dossier ch. 18, relevant once Understand's sibling adapter or any generative capability is served at scale): `2 × attention_layers × KV_heads × head_dim × cached_tokens × concurrent_sequences × bytes_per_element`. Useful for capacity planning multiple concurrent requests against a served adapter — not needed for the embedding/reranker-based capabilities (Retrieve/Rank), which don't autoregressively generate.
 
+## Checkpoint-selection dev set vs. final reported test set — must never be the same data
+
+**Confirmed by direct inspection of the shipped model's own training script (`train/train_multitask.py`, lines 196–197 and 245–247):** the original run's `evaluate_constraint_task` and `evaluate_queryner_task` were called *inside* the training loop, at every one of the 8 logged checkpoints, against the *same* fixed `eval_constraint_data`/`eval_queryner_data` loaded once at the start. The checkpoint that shipped (step 750) was selected by watching the score trend on this same fixed set across all 8 checkpoints — this is precisely the "selection exposure" finding the paper's own audit documents (30 of 993 QueryNER test examples were part of this loop, not held out). Training and evaluating in the same loop, on the same repeatedly-observed set, and then reporting that set's final number as if it were a clean test result, is a structural methodology gap, not a one-off mistake specific to that run — it will recur in every new capability here unless explicitly designed against.
+
+**Mandatory going forward, for every capability in this expansion, not optional:** maintain three distinct data partitions, never collapsed into two:
+1. **Training data** — what the model is fine-tuned on.
+2. **Checkpoint-selection dev set** — evaluated at every checkpoint (the every-150-steps cadence already specified above), used to pick which checkpoint to ship. This set may be looked at repeatedly during training — that is its job — but its resulting score is a **development number, not a reportable final result**, exactly as the paper's revision now correctly relabels the original 20-query constraint set as development data rather than a held-out benchmark.
+3. **Locked-final test set** — never evaluated during training, never used for checkpoint selection, never touched until one single final scoring pass after a checkpoint is already chosen. This is the only set whose score may be reported as the capability's headline result. WANDS is already correctly designated this way for Commerce-Retrieve (data-source gate table above); every other capability needs an equivalent locked-final partition named explicitly in its own plan file before training starts, not chosen after the fact from whatever data happens to be left over.
+
+Do not repeat the original run's implicit conflation of (2) and (3) — label every eval file at creation time with which of the three partitions it is, and never let a script that logs per-checkpoint metrics also produce the number that ends up in a results table without an explicit, separate, one-time final pass.
+
 ## Contracts (shared conventions, all new capabilities must follow)
 
 All new endpoints authenticate tenant context and record request ID, model SHA, adapter SHA (if applicable), schema version and evidence spans in the trace — identical to the existing `/parse-query` route's pattern in `serve/api.py`. No new endpoint may bypass tenant scoping to reuse code faster.
