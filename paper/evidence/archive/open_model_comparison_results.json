@@ -1,0 +1,7 @@
+{
+  "MEASURED_HERE": true,
+  "results": {
+    "qwen3.5-2b_unfinetuned": 0.05,
+    "smollm3-3b_unfinetuned": 0.1
+  }
+}

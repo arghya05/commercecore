@@ -15,6 +15,12 @@
  pdftitle={CommerceCore: Low-Budget Multitask Adaptation for Structured E-Commerce Queries},pdfauthor={Arghya Mukherjee}}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\Fmacro}{\overline{F}_1}
+\newcommand{\gitartifact}[2]{\href{https://github.com/arghya05/commercecore/blob/fa64ee7f7a2bf26cafa6bba692b6becb2c05a14d/#1}{#2}}
+\newcommand{\hfartifact}[2]{\href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/#1}{#2}}
+% Primitive input is expandable inside the generated table alignments.
+\makeatletter
+\let\inputtablerows\@@input
+\makeatother
 \input{evidence/numbers.tex}
 \title{CommerceCore: Low-Budget Multitask Adaptation\\for Structured E-Commerce Queries}
 \author{Arghya Mukherjee\\Independent Researcher\\\texttt{arghya05@gmail.com}\\\href{https://orcid.org/0009-0008-3423-8574}{ORCID: 0009-0008-3423-8574}}
@@ -55,7 +61,7 @@ Entity segmentation predicts $(\ell,s)$ pairs, with QueryNER label $\ell$ and sp
 
 \begin{table}[t]
 \centering
-\caption{Mixture specified by the builder. Synthetic row counts are verified from the current files. The historical shuffled mixture itself was not archived locally.}
+\caption{Training mixture verified against the archived 2,130-row file. Rebuilding with seed 42 reproduces the archived prompt/completion records in order.}
 \label{tab:data}
 \begin{tabular}{llrr}
 \toprule
@@ -149,6 +155,7 @@ Table~\ref{tab:results} reports the supported task results. ``Recorded'' denotes
 Evaluation & $n$ & $\Fmacro$ & Evidence \\
 \midrule
 Constraint development, step 750 & 20 & 0.725 & Recorded checkpoint aggregate \\
+Served-model development & 20 & 0.683 & Recomputed from predictions \\
 QueryNER selection subset, step 750 & 30 & 0.556 & Recorded checkpoint aggregate \\
 QueryNER full local test file & 993 & 0.498 & Recorded final aggregate \\
 Additional diagnostic queries & 6 & 0.400 & Recomputed from predictions \\
@@ -157,6 +164,8 @@ Additional diagnostic queries & 6 & 0.400 & Recomputed from predictions \\
 \end{table}
 
 The offline audit finds \SyntheticUniqueN{} distinct normalized queries in 450 synthetic rows, with \SyntheticDuplicateN{} repeated rows beyond the first occurrence. Eight query groups, containing 20 rows, have conflicting target \emph{sets}; list-order differences are ignored. For example, ``black waterproof windbreaker size S'' is paired with color alone in one row and color plus waterproof status in another. The prompt supplies no scenario identifier that could distinguish these targets. Target lengths are one constraint in 192 rows, two in 238, and three in 20; none contains four. No current query row matches the generic-phrase blocklist. This verifies phrase removal, not linguistic naturalness or semantic fidelity. Historical labels are preserved so that edits do not silently sever their connection to the recorded model.
+
+\input{benchmark_results.tex}
 
 \subsection{Checkpoint selection and behavioral drift}
 At each checkpoint, the model answers five fixed prompts about a capital city, weather, arithmetic, a primary color, and a sentence completion. Let $A$ and $B$ be sets of lowercased whitespace-delimited output tokens from the checkpoint and frozen base. The diagnostic averages
@@ -186,6 +195,8 @@ with one for two empty sets and zero if only one is empty. It measures lexical a
 \end{figure}
 
 The historical selection note chooses step 750, where output similarity is highest (0.6143), constraint F1 is 0.7250, and QueryNER subset F1 is 0.5562. At step 1,200 these are 0.4886, 0.7400, and 0.5298. Step 600 maximizes QueryNER subset F1 and step 1,050 maximizes constraint F1 (Figure~\ref{fig:checkpoints}). Pareto analysis over all three logged signals retains steps 150, 300, 600, 750, 900, and 1,050. Step 750 is one nondominated choice, not a uniquely optimal checkpoint. It was selected after observing the trajectories, without a prespecified scalar objective or threshold. The later similarity decline establishes output drift on these probes, not catastrophic forgetting or a causal effect of overtraining.
+
+The complete 1,200-step loss trace, approximate epoch summaries, and exact losses at all eight checkpoints are included in Appendix~\ref{app:training-logs}. The mean logged loss decreases from 0.2136 over steps 1--266 to 0.0246 over the final partial pass (steps 1,066--1,200). These are training-loss summaries, not held-out loss estimates; the decline does not establish better extraction accuracy or preserved general capability.
 
 \subsection{Diagnostic errors}
 The six saved predictions contain nine predicted triples and twelve gold triples, with four matches. Pooled precision is 0.444, recall is 0.333, and micro-F1 is \FreshMicroF{}. Mean per-query F1 is 0.400, but exact-set accuracy is 0/6. Partial overlap therefore coexists with an incorrect constraint set on every example. Table~\ref{tab:errors} reports every case, including the distinction between permitting sugar and requiring its presence, and errors in field, operator, and unit normalization.
@@ -229,9 +240,9 @@ The service is a research interface. Valid JSON can contain unsupported or confl
 
 \section{Reproducibility}
 \label{sec:repro}
-Source code is available at \href{https://github.com/arghya05/commercecore}{github.com/arghya05/commercecore}. The repository identifies a model release at \href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b}{arghya2030/commercecore-qwen3-1.7b}; this audit does not independently certify hosted weights or correspondence to every historical run.
+The public artifacts are the \href{https://github.com/arghya05/commercecore}{GitHub repository}, \href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b}{Hugging Face model card}, and \href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/tree/425c4a52e6a0e73fd6770ee0918851a132821d3d}{versioned model files and archive}. The latter includes merged weights, tokenizer files, checkpoint adapters, training data, logs, and evaluation records. Availability does not by itself verify that the released weights reproduce every recorded run. Appendix~\ref{app:provenance} provides clickable evidence links, fixed repository revisions, and instructions for checking the numbers.
 
-The standard-library script \code{paper/audit\_evidence.py} recounts rows, reconstructs the seed-42 sample, checks exact overlaps and conflicting target sets, computes the restricted-label ceiling, rescores saved predictions, and regenerates checkpoint data. It saves machine-readable results, reconstructed sample IDs, and SHA-256 hashes. The manuscript reads audit counts and figure data directly from those outputs. These offline checks are distinct from inference reproduction: full-test per-example generations, the historical mixed training file, and a complete pinned training environment are absent, and several original scripts retain pod-specific paths. Appendix~\ref{app:provenance} maps each result to its evidence.
+The standard-library script \href{https://github.com/arghya05/commercecore/blob/main/paper/audit_evidence.py}{\nolinkurl{paper/audit_evidence.py}} recounts rows, reproduces the archived seed-42 mixture in order, checks exact overlaps and conflicting target sets, computes the restricted-label ceiling, rescores the 20 served-model and six diagnostic predictions, and regenerates loss and checkpoint data. It saves \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/audit_results.json}{machine-readable results}, reconstructed sample IDs, and SHA-256 hashes. Small archive inputs and the historical mixture are mirrored under \path{paper/evidence/archive/} so the audit can run from the GitHub checkout without downloading model weights. Full-test per-example QueryNER generations and a complete pinned training environment remain unavailable, and several original inference scripts retain pod-specific paths. These offline checks are distinct from rerunning model inference.
 
 \section{Conclusion}
 CommerceCore is a concrete case study of low-budget multitask adaptation for structured shopping queries. Its recorded run supports implementation feasibility, while saved predictions expose semantic errors despite partial set overlap. Auditing the artifacts identifies conflicting synthetic targets, test examples used for checkpoint selection, and an incomplete baseline label vocabulary. These findings constrain the claims supported by the current scores and provide executable checks for future studies. Strong comparative conclusions require consistent supervision, matched baselines, and an independent final evaluation.

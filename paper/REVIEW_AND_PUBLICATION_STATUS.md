@@ -11,7 +11,7 @@ This revision prepares a grounded research preprint, with a compiled PDF and a s
 | Critical | Test examples informed checkpoint selection. | `train/train_multitask.py`, first 30 QueryNER test records and all 20 constraint queries at every checkpoint | Reclassified the constraint set as development and disclosed selection exposure in the full QueryNER result. |
 | Critical | Serialized synthetic targets differ from what was validated. | `data/generate_scaled_query_training_data.py` writes `scenario.constraints`, after validating a filtered contract | Described the actual implementation. The historical data/model were not silently changed. Retraining is needed after repair. |
 | High | Same synthetic query can have conflicting target sets. | New deterministic audit of `data/synthetic_training_text.jsonl` | Reported 374 distinct queries, 76 repeated rows, 8 conflicting groups spanning 20 rows. List-order changes do not count as conflicts. |
-| High | Several headline numbers lack local result artifacts. | Narrative claims without corresponding result files | Excluded merged-serving F1 0.683, flagship QueryNER F1 0.204/0.427, and open-model development F1 0.05/0.10 from primary results. |
+| High | The first audit missed the Git-ignored model archive; two QueryNER flagship values still lack matching measurement files. | `runpod_archive/results/complete_inference_test_results.json` and `open_model_comparison_results.json`, also published on Hugging Face | Restored served-model F1 0.683 and all three vertical scores after rescoring all 20 predictions; restored stored open-model F1 0.05/0.10. Only QueryNER F1 0.204/0.427 remain narrative-only and are labeled accordingly in the appendix. |
 | High | Five lexical-overlap probes were treated as measured catastrophic forgetting. | Training similarity implementation and retention CSV | Renamed the quantity as base-output similarity; added its exact formula and interpretation limits. |
 | High | The checkpoint decision was retrospective and not uniquely optimal. | Eight checkpoint records | Added trajectories, full history, and a Pareto projection; identified six nondominated checkpoints across all three signals. |
 | High | Three repetitions of 20 queries were pooled as 60 independent observations. | `eval/rigorous_baseline_comparison.py` | Removed invalid comparative uncertainty claims; specified paired query-cluster inference for future runs. |
@@ -30,6 +30,8 @@ This revision prepares a grounded research preprint, with a compiled PDF and a s
 - Rewrote the paper around the supported feasibility study and artifact audit.
 - Added formal metrics, two checkpoint visualizations, all six diagnostic cases, provenance tables, and an experimental extension protocol.
 - Added `audit_evidence.py`, reproducible offline results, input hashes, and reconstructed seed-42 QueryNER sample IDs.
+- Restored benchmark tables and all original supported served/open-model results after inspecting the ignored `runpod_archive`; mirrored the necessary inputs under `paper/evidence/archive/` with versioned Hugging Face links and hashes.
+- Added the complete 1,200-step training-loss plot, approximate epoch summaries, exact checkpoint-loss joins, and clickable links from numerical results to their evidence. The archived 2,130-row training mixture matches the reconstructed records in order.
 - Preserved original experiment files. No model was retrained, no API baseline was rerun, and no new human annotation was collected.
 - Prepared a public preprint using the official NeurIPS 2026 style in `preprint` mode. This does not imply submission or acceptance at NeurIPS.
 
@@ -56,7 +58,7 @@ These are experimental requirements, not editorial omissions. Adding empty table
 | Are synthetic labels reliable? | Mechanical acceptance is insufficient; eight inconsistent query groups and a writer/validator mismatch are documented. |
 | Is checkpoint 750 objectively best? | It is a retrospective nondominated choice, not a unique optimum. |
 | Does 0.400 F1 mean reliable execution? | No. All six diagnostic cases lack an exact-set match. |
-| Can the reported numbers be reproduced? | New offline analyses and saved six-query predictions can be recomputed. Several historical aggregates cannot be regenerated offline without missing predictions and execution metadata. |
+| Can the reported numbers be reproduced? | The saved 20-query served-model and six-query diagnostic predictions, all loss summaries, and the archived training mixture can be checked offline. Several historical aggregates cannot be regenerated without missing predictions and execution metadata. |
 | Is deployment cheaper or faster? | No matched serving study supports such a claim. Only the recorded training cost arithmetic is verified. |
 
 ## Venue and upload boundaries

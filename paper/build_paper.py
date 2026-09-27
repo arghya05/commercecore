@@ -15,9 +15,14 @@ HERE = Path(__file__).resolve().parent
 SOURCE_FILES = [
     "commercecore_paper.tex",
     "appendices.tex",
+    "benchmark_results.tex",
     "neurips_2026.sty",
     "evidence/numbers.tex",
     "evidence/checkpoint_history.csv",
+    "evidence/checkpoint_rows.tex",
+    "evidence/training_loss_history.csv",
+    "evidence/training_loss_curve.csv",
+    "evidence/loss_window_rows.tex",
     "checklist.tex",
 ]
 

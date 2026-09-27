@@ -1,0 +1,129 @@
+{
+  "n_queries_tested": 8,
+  "n_valid_json_output": 8,
+  "valid_json_rate": 1.0,
+  "results": [
+    {
+      "query": "black waterproof trainers under 80 pounds",
+      "vertical": "fashion",
+      "raw_output": " [{\"field\": \"color\", \"op\": \"eq\", \"value\": \"black\"}]",
+      "parsed": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "red leather jacket size M",
+      "vertical": "fashion",
+      "raw_output": " [{\"field\": \"size\", \"op\": \"eq\", \"value\": \"M\"}]",
+      "parsed": [
+        {
+          "field": "size",
+          "op": "eq",
+          "value": "M"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "almonds with no added sugar",
+      "vertical": "grocery",
+      "raw_output": " [{\"field\": \"contains_added_sugar\", \"op\": \"eq\", \"value\": \"false\"}]",
+      "parsed": [
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "snack bar with nuts, don't care about sugar",
+      "vertical": "grocery",
+      "raw_output": " [{\"field\": \"contains_nuts\", \"op\": \"eq\", \"value\": \"true\"}, {\"field\": \"contains_added_sugar\", \"op\": \"eq\", \"value\": \"false\"}]",
+      "parsed": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "battery powered speaker at least 12 month warranty",
+      "vertical": "general",
+      "raw_output": " [{\"field\": \"warranty_months\", \"op\": \"gte\", \"value\": \"12\"}]",
+      "parsed": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "12"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "mains powered kettle under 50 quid",
+      "vertical": "general",
+      "raw_output": " [{\"field\": \"price_gbp\", \"op\": \"lte\", \"value\": \"50\"}]",
+      "parsed": [
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "50"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "wool sweater size S",
+      "vertical": "fashion",
+      "raw_output": " [{\"field\": \"material\", \"op\": \"eq\", \"value\": \"wool\"}]",
+      "parsed": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "wool"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    },
+    {
+      "query": "oat milk vegan",
+      "vertical": "grocery",
+      "raw_output": " [{\"field\": \"contains_nuts\", \"op\": \"eq\", \"value\": \"false\"}, {\"field\": \"contains_added_sugar\", \"op\": \"eq\", \"value\": \"false\"}]",
+      "parsed": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "valid_json": true,
+      "error": null
+    }
+  ]
+}

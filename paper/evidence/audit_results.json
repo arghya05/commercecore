@@ -1,5 +1,58 @@
 {
   "analysis_type": "Offline reanalysis of existing artifacts; no new training or model inference",
+  "archived_artifacts": {
+    "manifest": {
+      "source": "Public CommerceCore Hugging Face runpod_archive, also present in the ignored local archive",
+      "huggingface_revision": "425c4a52e6a0e73fd6770ee0918851a132821d3d",
+      "files": {
+        "complete_inference_test_results.json": {
+          "original_path": "runpod_archive/results/complete_inference_test_results.json",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/complete_inference_test_results.json",
+          "sha256": "45fd33bda7cdd7fef8732027e480764bd2aea1fb00626630d1a83785a187f5cb"
+        },
+        "full_inference_test_results.json": {
+          "original_path": "runpod_archive/results/full_inference_test_results.json",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/full_inference_test_results.json",
+          "sha256": "7edcde172279d20a93ddc2037d543bb0ec7a6addf52a298050a0c2a44379b737"
+        },
+        "open_model_comparison_results.json": {
+          "original_path": "runpod_archive/results/open_model_comparison_results.json",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/open_model_comparison_results.json",
+          "sha256": "fc74d0042b4b83c86fb27037000750bd3174768dff0d1828153d33396203b588"
+        },
+        "multitask_train_mixture.jsonl": {
+          "original_path": "runpod_archive/data/multitask_train_mixture.jsonl",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/data/multitask_train_mixture.jsonl",
+          "sha256": "2658a4284128d5431672e6b833a7900f3ba088f62052fdfe263e068393b85718"
+        },
+        "complete_inference_test.py": {
+          "original_path": "runpod_archive/scripts/complete_inference_test.py",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/complete_inference_test.py",
+          "sha256": "50e63037424c1c37874d96c17bb4961d5c8e43933dc45fdf466c1550e61a8859"
+        },
+        "open_model_comparison.py": {
+          "original_path": "runpod_archive/scripts/open_model_comparison.py",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/open_model_comparison.py",
+          "sha256": "0ecd4ca7f6a6325bdb19ecdb22b6d9a48335f53efedba540dd1d0fd438c950a4"
+        },
+        "serve_inference.py": {
+          "original_path": "runpod_archive/scripts/serve_inference.py",
+          "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/serve_inference.py",
+          "sha256": "bbd85b56fa92e5c9c7086e34fe210436533522fb683f0b382f36f33e90378936"
+        }
+      }
+    },
+    "mixture_n_rows": 2130,
+    "mixture_matches_reconstructed_ordered_records": true,
+    "open_model_development_aggregates": {
+      "MEASURED_HERE": true,
+      "results": {
+        "qwen3.5-2b_unfinetuned": 0.05,
+        "smollm3-3b_unfinetuned": 0.1
+      }
+    },
+    "syntax_check_n_valid_json_recomputed": 8
+  },
   "normalization": "Unicode casefold and whitespace collapse; no punctuation removal or semantic deduplication",
   "queryner": {
     "n_train_available": 7841,
@@ -459,6 +512,47 @@
         "n_gold": 12,
         "empty_parsed_outputs": 6
       }
+    },
+    "served_development_recomputed": {
+      "n_queries": 20,
+      "macro_f1": 0.6833333333333332,
+      "per_query_f1": [
+        0.5,
+        1.0,
+        0.6666666666666666,
+        1.0,
+        0.6666666666666666,
+        1.0,
+        1.0,
+        1.0,
+        0.6666666666666666,
+        0.6666666666666666,
+        0.6666666666666666,
+        1.0,
+        0.5,
+        0.5,
+        0.6666666666666666,
+        0.5,
+        1.0,
+        0.0,
+        0.6666666666666666,
+        0.0
+      ],
+      "per_vertical_f1": {
+        "fashion": 0.6904761904761905,
+        "grocery": 0.6666666666666666,
+        "general": 0.6944444444444443
+      },
+      "per_vertical_n": {
+        "fashion": 7,
+        "grocery": 7,
+        "general": 6
+      },
+      "true_positives": 23,
+      "n_predicted": 31,
+      "n_gold": 35,
+      "micro_f1": 0.696969696969697,
+      "exact_set_matches": 7
     }
   },
   "training": {
@@ -475,49 +569,73 @@
         "step": 150,
         "constraint_f1": 0.7083,
         "queryner_f1": 0.6248,
-        "output_similarity": 0.5969
+        "output_similarity": 0.5969,
+        "training_loss": 0.0836,
+        "elapsed_seconds": 432.7,
+        "approximate_passes": 0.5633802816901409
       },
       {
         "step": 300,
         "constraint_f1": 0.6983,
         "queryner_f1": 0.6038,
-        "output_similarity": 0.6106
+        "output_similarity": 0.6106,
+        "training_loss": 0.0612,
+        "elapsed_seconds": 986.3,
+        "approximate_passes": 1.1267605633802817
       },
       {
         "step": 450,
         "constraint_f1": 0.675,
         "queryner_f1": 0.6014,
-        "output_similarity": 0.5969
+        "output_similarity": 0.5969,
+        "training_loss": 0.053,
+        "elapsed_seconds": 1552.4,
+        "approximate_passes": 1.6901408450704225
       },
       {
         "step": 600,
         "constraint_f1": 0.69,
         "queryner_f1": 0.6303,
-        "output_similarity": 0.5917
+        "output_similarity": 0.5917,
+        "training_loss": 0.0374,
+        "elapsed_seconds": 2122.3,
+        "approximate_passes": 2.2535211267605635
       },
       {
         "step": 750,
         "constraint_f1": 0.725,
         "queryner_f1": 0.5562,
-        "output_similarity": 0.6143
+        "output_similarity": 0.6143,
+        "training_loss": 0.0489,
+        "elapsed_seconds": 2685.3,
+        "approximate_passes": 2.816901408450704
       },
       {
         "step": 900,
         "constraint_f1": 0.725,
         "queryner_f1": 0.614,
-        "output_similarity": 0.49
+        "output_similarity": 0.49,
+        "training_loss": 0.0049,
+        "elapsed_seconds": 3254.6,
+        "approximate_passes": 3.380281690140845
       },
       {
         "step": 1050,
         "constraint_f1": 0.75,
         "queryner_f1": 0.5733,
-        "output_similarity": 0.5175
+        "output_similarity": 0.5175,
+        "training_loss": 0.0234,
+        "elapsed_seconds": 3821.5,
+        "approximate_passes": 3.943661971830986
       },
       {
         "step": 1200,
         "constraint_f1": 0.74,
         "queryner_f1": 0.5298,
-        "output_similarity": 0.4886
+        "output_similarity": 0.4886,
+        "training_loss": 0.0122,
+        "elapsed_seconds": 4385.8,
+        "approximate_passes": 4.507042253521127
       }
     ],
     "pareto_steps_on_three_logged_signals": [
@@ -528,6 +646,57 @@
       900,
       1050
     ],
+    "loss_log": {
+      "source": "train/results_multitask_clean/multitask_training_loss_log.csv",
+      "n_logged_steps": 1200,
+      "first_logged_loss": 2.5097,
+      "last_logged_loss": 0.0122,
+      "meaning": "Mean completion-token loss over eight accumulated microbatches at each optimizer step; logged to four decimals",
+      "window_rule": "Boundaries floor(k * n_training_examples / gradient_accumulation); final window is partial",
+      "approximate_pass_windows": [
+        {
+          "start_step": 1,
+          "end_step": 266,
+          "n_logged_steps": 266,
+          "approximate_passes_at_end": 0.9990610328638497,
+          "mean_logged_loss": 0.21364323308270683,
+          "end_step_loss": 0.0833
+        },
+        {
+          "start_step": 267,
+          "end_step": 532,
+          "n_logged_steps": 266,
+          "approximate_passes_at_end": 1.9981220657276995,
+          "mean_logged_loss": 0.06975451127819543,
+          "end_step_loss": 0.0725
+        },
+        {
+          "start_step": 533,
+          "end_step": 798,
+          "n_logged_steps": 266,
+          "approximate_passes_at_end": 2.9971830985915493,
+          "mean_logged_loss": 0.04613458646616544,
+          "end_step_loss": 0.0469
+        },
+        {
+          "start_step": 799,
+          "end_step": 1065,
+          "n_logged_steps": 267,
+          "approximate_passes_at_end": 4.0,
+          "mean_logged_loss": 0.030341573033707873,
+          "end_step_loss": 0.0361
+        },
+        {
+          "start_step": 1066,
+          "end_step": 1200,
+          "n_logged_steps": 135,
+          "approximate_passes_at_end": 4.507042253521127,
+          "mean_logged_loss": 0.024637777777777765,
+          "end_step_loss": 0.0122
+        }
+      ],
+      "curve_smoothing": "Trailing arithmetic mean over at most 50 logged optimizer steps"
+    },
     "approximate_passes_full_run": 4.507042253521127,
     "approximate_passes_selected_checkpoint": 2.816901408450704,
     "historical_gpu_rate_usd_per_hour": 0.72,
@@ -556,10 +725,19 @@
     "eval/queryner_baseline_results.json": "f167a2f9c10ab3c560649dfe73320e92b9bc49b4c166e0951844383a2a59119b",
     "eval/rigorous_baseline_comparison.py": "81522e956668f15a29b445a2e9fd260347a481d39830c1e8d7a73059b6e392d3",
     "eval/rigorous_baseline_results.json": "6061488c7c81288baf1f84a3147f44d107682d2a8407823575401fdc68cd8374",
+    "paper/evidence/archive/complete_inference_test.py": "50e63037424c1c37874d96c17bb4961d5c8e43933dc45fdf466c1550e61a8859",
+    "paper/evidence/archive/complete_inference_test_results.json": "45fd33bda7cdd7fef8732027e480764bd2aea1fb00626630d1a83785a187f5cb",
+    "paper/evidence/archive/full_inference_test_results.json": "7edcde172279d20a93ddc2037d543bb0ec7a6addf52a298050a0c2a44379b737",
+    "paper/evidence/archive/manifest.json": "1d4d6d87a0619ee8ff4c9215c231f443e1b7fd8b66cee90e9f2319b9f5226785",
+    "paper/evidence/archive/multitask_train_mixture.jsonl": "2658a4284128d5431672e6b833a7900f3ba088f62052fdfe263e068393b85718",
+    "paper/evidence/archive/open_model_comparison.py": "0ecd4ca7f6a6325bdb19ecdb22b6d9a48335f53efedba540dd1d0fd438c950a4",
+    "paper/evidence/archive/open_model_comparison_results.json": "fc74d0042b4b83c86fb27037000750bd3174768dff0d1828153d33396203b588",
+    "paper/evidence/archive/serve_inference.py": "bbd85b56fa92e5c9c7086e34fe210436533522fb683f0b382f36f33e90378936",
     "train/build_multitask_mixture.py": "b49d76b42fd716c259ed3e066b83de1bb457d034586623472adfdb231ec39e46",
     "train/results_multitask_clean/multitask_checkpoint_eval_log.csv": "f45ae666ecbaac81383bb7fe72bc08fa79f298ed938959c92a0597a420006523",
     "train/results_multitask_clean/multitask_retention_log.csv": "531b44aac5a297479397efa34ed52b1c66783e216f31067a8eb190ff0dd4c669",
     "train/results_multitask_clean/multitask_run_summary.json": "f149c171f6f3f8c7f50b60443938c5b5f919a96c4bb78b81aa9850f0f5896057",
+    "train/results_multitask_clean/multitask_training_loss_log.csv": "fda3f3f7c34730c60a9acf39c1a0bbb24a1c33473f2252acdd7a033764ad32bd",
     "train/train_multitask.py": "730be731256d1b1f3bf0b910609f4133605835d5519f225e90ec2de32e527084",
     "validators/mechanical_validator.py": "a49b0ac042009de21f73753cb6b5fe542542d6cb8173ec061ea272154ee7a65f"
   }

@@ -1,0 +1,527 @@
+{
+  "MEASURED_HERE": true,
+  "source": "served merged model (serve/inference.py), not raw training checkpoint",
+  "n_examples": 20,
+  "overall_f1": 0.6833333333333333,
+  "per_vertical_f1": {
+    "fashion": 0.6904761904761905,
+    "grocery": 0.6666666666666667,
+    "general": 0.6944444444444443
+  },
+  "per_vertical_n": {
+    "fashion": 7,
+    "grocery": 7,
+    "general": 6
+  },
+  "results": [
+    {
+      "query": "looking for black waterproof trainers, budget under 80 pounds",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        }
+      ],
+      "truth": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        },
+        {
+          "field": "waterproof",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "80"
+        }
+      ],
+      "f1": 0.5
+    },
+    {
+      "query": "need a leather jacket, doesn't matter the color",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "leather"
+        }
+      ],
+      "truth": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "leather"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "wool sweater size S",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "wool"
+        }
+      ],
+      "truth": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "wool"
+        },
+        {
+          "field": "size",
+          "op": "eq",
+          "value": "S"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "almonds with no added sugar please",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "snack bar that has nuts in it, don't care about sugar",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "peanut butter, no added sugar, must contain nuts obviously",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "something nut free and unsweetened",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "battery powered speaker with at least a year warranty",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "12"
+        },
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "battery"
+        }
+      ],
+      "truth": [
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "battery"
+        },
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "12"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "mains powered kettle under 50 quid",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "50"
+        }
+      ],
+      "truth": [
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "mains"
+        },
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "50"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "cordless drill, 2 year warranty minimum",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "24"
+        }
+      ],
+      "truth": [
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "battery"
+        },
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "24"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "red waterproof jacket for hiking",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "red"
+        }
+      ],
+      "truth": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "red"
+        },
+        {
+          "field": "waterproof",
+          "op": "eq",
+          "value": "true"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "black leather boots, any size",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        },
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "leather"
+        }
+      ],
+      "truth": [
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        },
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "leather"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "granola with nuts and sugar, the sweet kind",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "contains_sugar",
+          "op": "eq",
+          "value": "true"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "true"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "true"
+        }
+      ],
+      "f1": 0.5
+    },
+    {
+      "query": "rice cakes, nothing sweet, no nuts either",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "f1": 0.5
+    },
+    {
+      "query": "robot vacuum with a good long warranty, at least 2 years",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "24"
+        },
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "48"
+        }
+      ],
+      "truth": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "24"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "air fryer plugged into the wall, warranty over a year",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "12"
+        },
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "wall"
+        }
+      ],
+      "truth": [
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "mains"
+        },
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "12"
+        }
+      ],
+      "f1": 0.5
+    },
+    {
+      "query": "cheap trainers under 65 quid, has to be black",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "65"
+        },
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        }
+      ],
+      "truth": [
+        {
+          "field": "price_gbp",
+          "op": "lte",
+          "value": "65"
+        },
+        {
+          "field": "color",
+          "op": "eq",
+          "value": "black"
+        }
+      ],
+      "f1": 1.0
+    },
+    {
+      "query": "medium sized wool coat",
+      "vertical": "fashion",
+      "predicted": [
+        {
+          "field": "size",
+          "op": "eq",
+          "value": "medium"
+        }
+      ],
+      "truth": [
+        {
+          "field": "material",
+          "op": "eq",
+          "value": "wool"
+        },
+        {
+          "field": "size",
+          "op": "eq",
+          "value": "M"
+        }
+      ],
+      "f1": 0.0
+    },
+    {
+      "query": "phone charger, battery operated obviously, half year warranty is fine",
+      "vertical": "general",
+      "predicted": [
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "6"
+        }
+      ],
+      "truth": [
+        {
+          "field": "power_source",
+          "op": "eq",
+          "value": "battery"
+        },
+        {
+          "field": "warranty_months",
+          "op": "gte",
+          "value": "6"
+        }
+      ],
+      "f1": 0.6666666666666666
+    },
+    {
+      "query": "oat milk that's vegan",
+      "vertical": "grocery",
+      "predicted": [
+        {
+          "field": "contains_nuts",
+          "op": "eq",
+          "value": "false"
+        },
+        {
+          "field": "contains_added_sugar",
+          "op": "eq",
+          "value": "false"
+        }
+      ],
+      "truth": [],
+      "f1": 0.0
+    }
+  ]
+}

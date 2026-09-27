@@ -3,15 +3,20 @@
   "mode": "public preprint; default build excludes optional conference checklist",
   "top_level_tex": "commercecore_paper.tex",
   "source_files_sha256": {
-    "commercecore_paper.tex": "f82e1225896329566e854b371f3493fac2e76d0daafc3177c04856264bc88131",
-    "appendices.tex": "8d287cf6575dd32eb1c23e694a2a687fa6e86a726ce0dd5707e08038896f6cab",
+    "commercecore_paper.tex": "a162f20e0aec4979786e0d99d9783d6f16329dd86c46a9da52441bf489712385",
+    "appendices.tex": "9edf22d7a1f84c40f513d3fb57e24160a548ec31af0160a838daf9ad1decfc96",
+    "benchmark_results.tex": "7ae1a5e5fcd6857e109453b0260f1b25276e762488a092744070f683fda57d70",
     "neurips_2026.sty": "c3fc2894e83d2517ca18b66741d6c595986d97957dc08ec08bb2125a7ec4555a",
     "evidence/numbers.tex": "25f449fd7a7a455890f0bf3c9a04b7997ab73ff7b65b65d819bc66e31b7a3c51",
-    "evidence/checkpoint_history.csv": "47d59476243e6f2c3916ba77feb14ac0aeefe082b9a35b051883939b72bd26ef",
+    "evidence/checkpoint_history.csv": "c9ee664b9e15849d94cdf0059e755a242b135c04c0ee43d206d573b1bb5ab613",
+    "evidence/checkpoint_rows.tex": "ee6eef6402b1ae637250825b26d75d1c24aa2d3a862e9677b1ab8b0795beeef5",
+    "evidence/training_loss_history.csv": "fda3f3f7c34730c60a9acf39c1a0bbb24a1c33473f2252acdd7a033764ad32bd",
+    "evidence/training_loss_curve.csv": "e77c323c25779cf8cd3ea861a471c0209c22eb198d57c2a67267ca25177ec6df",
+    "evidence/loss_window_rows.tex": "12c4df15d4b50684490d801ad6b287e7777b32eadb721650759f7fe79f39702c",
     "checklist.tex": "dc2f14c5c8d0bc739ac86ad33e0d4fd05f3c48f30317a50f28171aa672411c99"
   },
-  "public_pdf_sha256": "79fe3f628db1e0fdb7661fc203b5eb9587aee33a97b720ec4dc61b3034f98b35",
-  "source_zip_sha256": "f106f042814f10bcc22b3014f5ee5d2d825e14caee03dba537395f83b61972b9",
+  "public_pdf_sha256": "07d4c691a97ea24f2dd6a60025652fdf7da53de280876450e54ec853c297dff7",
+  "source_zip_sha256": "f389c0558e1d53efe0adaba083af88981313505c90d7290e44568399fbb96b33",
   "validation": "Compiled successfully; no undefined citations/references, missing glyphs, or overfull boxes in final log",
   "boundary": "Local Tectonic compilation; arXiv server compilation and moderation have not been performed"
 }

@@ -1,0 +1,41 @@
+{
+  "source": "Public CommerceCore Hugging Face runpod_archive, also present in the ignored local archive",
+  "huggingface_revision": "425c4a52e6a0e73fd6770ee0918851a132821d3d",
+  "files": {
+    "complete_inference_test_results.json": {
+      "original_path": "runpod_archive/results/complete_inference_test_results.json",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/complete_inference_test_results.json",
+      "sha256": "45fd33bda7cdd7fef8732027e480764bd2aea1fb00626630d1a83785a187f5cb"
+    },
+    "full_inference_test_results.json": {
+      "original_path": "runpod_archive/results/full_inference_test_results.json",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/full_inference_test_results.json",
+      "sha256": "7edcde172279d20a93ddc2037d543bb0ec7a6addf52a298050a0c2a44379b737"
+    },
+    "open_model_comparison_results.json": {
+      "original_path": "runpod_archive/results/open_model_comparison_results.json",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/results/open_model_comparison_results.json",
+      "sha256": "fc74d0042b4b83c86fb27037000750bd3174768dff0d1828153d33396203b588"
+    },
+    "multitask_train_mixture.jsonl": {
+      "original_path": "runpod_archive/data/multitask_train_mixture.jsonl",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/data/multitask_train_mixture.jsonl",
+      "sha256": "2658a4284128d5431672e6b833a7900f3ba088f62052fdfe263e068393b85718"
+    },
+    "complete_inference_test.py": {
+      "original_path": "runpod_archive/scripts/complete_inference_test.py",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/complete_inference_test.py",
+      "sha256": "50e63037424c1c37874d96c17bb4961d5c8e43933dc45fdf466c1550e61a8859"
+    },
+    "open_model_comparison.py": {
+      "original_path": "runpod_archive/scripts/open_model_comparison.py",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/open_model_comparison.py",
+      "sha256": "0ecd4ca7f6a6325bdb19ecdb22b6d9a48335f53efedba540dd1d0fd438c950a4"
+    },
+    "serve_inference.py": {
+      "original_path": "runpod_archive/scripts/serve_inference.py",
+      "source_url": "https://huggingface.co/arghya2030/commercecore-qwen3-1.7b/blob/425c4a52e6a0e73fd6770ee0918851a132821d3d/runpod_archive/scripts/serve_inference.py",
+      "sha256": "bbd85b56fa92e5c9c7086e34fe210436533522fb683f0b382f36f33e90378936"
+    }
+  }
+}

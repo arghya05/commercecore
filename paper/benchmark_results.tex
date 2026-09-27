@@ -1,0 +1,63 @@
+\subsection{Benchmark results by evaluation protocol}
+The benchmark tables retain the original study's entity-segmentation, constraint-extraction, and harder-query evaluations. We separate their sample sizes and execution protocols so that the recorded scores can be read in context. Values are rounded to three decimals from the saved artifacts; these tables do not represent new model runs. Additional values reported in the original manuscript, for which a matching measurement file is unavailable, are preserved separately in Appendix~\ref{app:baselines}.
+
+\begin{table}[htbp]
+\centering\small
+\caption{QueryNER entity-set F1. The CommerceCore evaluation uses 993 examples, including the 30 used during checkpoint selection. API runs use only the first 50 examples and a two-label prompt. The rows are not a matched comparison.}
+\label{tab:queryner-benchmark}
+\begin{tabularx}{\linewidth}{@{}lrrX@{}}
+\toprule
+System & Queries & Mean F1 & Evaluation scope \\
+\midrule
+CommerceCore, step 750 & 993 & 0.498 & Full local test file; recorded 95\% interval [0.475, 0.522]. \\
+\midrule
+Claude Haiku 4.5 & 50 & 0.263 & First 50; two permitted output labels. \\
+GPT-4o mini & 50 & 0.294 & First 50; same restricted label prompt. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Constraint-extraction mean F1 on the 20 development queries. API rows are three-repeat aggregates (60 scores per system); local-model rows are single evaluations. Prompt, decoding, and selection differences prevent attributing score differences to model specialization.}
+\label{tab:constraint-benchmark}
+\begin{tabularx}{\linewidth}{@{}lrX@{}}
+\toprule
+System & Mean F1 & Recorded protocol \\
+\midrule
+CommerceCore, step 750 & 0.725 & Training-time checkpoint evaluation; greedy decoding. \\
+CommerceCore, served model & 0.683 & Merged-model predictions rescored from the archive. \\
+Qwen3.5-2B, unfine-tuned & 0.050 & Archived few-shot aggregate; no per-query predictions. \\
+SmolLM3-3B, unfine-tuned & 0.100 & Archived few-shot aggregate; no per-query predictions. \\
+\midrule
+Claude Haiku 4.5 & 0.518 & Three few-shot API runs. \\
+Claude Sonnet 5 & 0.592 & Three few-shot API runs; corrected stored aggregate. \\
+GPT-4o mini & 0.618 & Three few-shot API runs. \\
+GPT-5 & 0.504 & Three few-shot API runs. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The served-model archive contains all 20 predictions and labels. Rescoring reproduces mean F1 0.683, with 23 matching triples out of 31 predictions and 35 gold triples (micro-F1 0.697), and seven exact-set matches (35\%). This is the original paper's served-model benchmark. Its difference from checkpoint F1 0.725 does not isolate an effect of merging, precision, or serving because the evaluation stages differ. The archived open-model results restore the original 0.050 and 0.100 scores under their recorded plain-prompt protocol.
+
+\begin{table}[htbp]
+\centering\small
+\caption{All seven systems from the six-query diagnostic comparison, retaining the original harder-query results. API values are stored aggregates; local-model values are recomputed from saved parsed predictions. Provider-side prompts and raw generations are incomplete, so this is descriptive evidence on six cases.}
+\label{tab:diagnostic-benchmark}
+\begin{tabularx}{\linewidth}{@{}lrX@{}}
+\toprule
+System & Mean F1 & Available evidence \\
+\midrule
+CommerceCore (1.7B) & 0.400 & Parsed predictions; 0/6 exact-set matches. \\
+Qwen3.5-2B, unfine-tuned & 0.000 & Six empty parsed outputs. \\
+SmolLM3-3B, unfine-tuned & 0.000 & Six empty parsed outputs. \\
+\midrule
+Claude Haiku 4.5 & 0.298 & Aggregate; no saved per-query API responses. \\
+Claude Sonnet 5 & 0.493 & Aggregate; no saved per-query API responses. \\
+GPT cheap tier & 0.428 & Aggregate; tier alias retained from the file. \\
+GPT flagship & 0.167 & Aggregate; tier alias retained from the file. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The stored diagnostic means for Sonnet and the GPT cheap-tier configuration are above CommerceCore's 0.400. The sample is too small and incompletely documented to establish a general ranking. Likewise, the two open-model zeros describe empty parsed outputs under the saved prompting and parsing configuration, rather than establishing the models' capability under appropriate templates and generation budgets.

@@ -1,46 +1,99 @@
-\section{Historical Baseline Records}
+\section{Additional Benchmark Details and Original Results}
 \label{app:baselines}
-Table~\ref{tab:api} preserves numerical context without presenting a controlled ranking. The two QueryNER API aggregates use the first 50 records and the restricted two-label prompt; CommerceCore has no saved result on exactly that sample. The repeated constraint aggregates use 20 development queries with three calls per query and model-dependent sampling settings. Historical notes describe the Sonnet repetitions as identical, but omitting a temperature parameter is not itself proof of deterministic generation.
+Tables~\ref{tab:queryner-benchmark}--\ref{tab:diagnostic-benchmark} present the main saved benchmark results. Table~\ref{tab:vertical-benchmark} adds the constraint results by vertical: seven fashion, seven grocery, and six general-merchandise queries. CommerceCore is a single served-model evaluation; API means cover three calls per query. The overall mean weights queries equally rather than averaging the three vertical means. Historical notes describe the Sonnet repetitions as identical, but omitting a temperature parameter is not itself proof of deterministic generation.
 
 The six-query API file contains aggregates and aliases, without per-query responses or the provider-side execution script. Its values cannot support paired significance testing or a response-level fairness audit. The GPU-side diagnostic file has parsed predictions and gold labels, permitting rescoring but not inspection of raw generations.
 
 \begin{table}[h]
 \centering
-\caption{Historical mean per-query F1, grouped by scope. QN = first 50 QueryNER examples; Dev = 20 constraint queries with three repeats; Diag = six queries. A dash means the value is unavailable in these records. No column establishes a controlled comparison with CommerceCore.}
-\label{tab:api}
-\begin{tabular}{lrrr}
+\caption{Constraint F1 by vertical: CommerceCore is rescored from archived served-model predictions; API values come from the three-repeat aggregate file. These are development-set results under differing protocols.}
+\label{tab:vertical-benchmark}
+\begin{tabular}{lrrrr}
 \toprule
-Stored model / alias & QN & Dev & Diag \\
+Stored model / alias & Fashion & Grocery & General & Overall \\
 \midrule
-Claude Haiku 4.5 & 0.263 & 0.518 & 0.298 \\
-Claude Sonnet 5 & --- & 0.592 & 0.493 \\
-GPT-4o mini / cheap tier & 0.294 & 0.618 & 0.428 \\
-GPT-5 / flagship & --- & 0.504 & 0.167 \\
+CommerceCore, served model & 0.690 & 0.667 & 0.694 & 0.683 \\
+\midrule
+Claude Haiku 4.5 & 0.803 & 0.448 & 0.267 & 0.518 \\
+Claude Sonnet 5 & 0.795 & 0.643 & 0.294 & 0.592 \\
+GPT-4o mini / cheap tier & 0.875 & 0.605 & 0.333 & 0.618 \\
+GPT-5 / flagship & 0.759 & 0.540 & 0.167 & 0.504 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 A separate single-run flagship artifact records 0.608 for the Sonnet configuration and 0.542 for GPT-5 on the same development set. These are distinct runs from the three-repeat aggregates. We preserve their files rather than merging unlike measurements. Historical scripts convert API errors into empty predictions or zeros, so end-to-end scores can include request failures.
 
-\section{Checkpoint History and Reproducibility Details}
-\begin{table}[h]
-\centering
-\caption{Complete history from the two checkpoint CSV logs. Similarity is a five-probe lexical diagnostic; QueryNER F1 is evaluated on the first 30 test examples.}
-\begin{tabular}{rrrr}
+\paragraph{Preserving the original manuscript's numerical record.}
+Table~\ref{tab:original-results} retains the two remaining QueryNER values from the \href{https://github.com/arghya05/commercecore/blob/09c65f3/paper/commercecore_paper.tex}{original manuscript}. A matching result file or prediction trace for these two values has not been located in the repository or the inspected model archive. Their presence here records what the original paper reported; it does not independently verify the measurements or establish comparability with the recorded runs above. The original served-model and open-model constraint results, in contrast, have archive evidence and are included in Table~\ref{tab:constraint-benchmark}.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Previously reported benchmark values without a matching local measurement artifact. All entries in this table have narrative-only provenance and are excluded from comparative conclusions. Model aliases follow the original paper.}
+\label{tab:original-results}
+\begin{tabularx}{\linewidth}{@{}p{0.36\linewidth}rX@{}}
 \toprule
-Step & Constraint F1 & QueryNER F1 & Similarity \\
+System / evaluation & Reported F1 & Scope reported in the original manuscript \\
 \midrule
-150 & 0.7083 & 0.6248 & 0.5969 \\
-300 & 0.6983 & 0.6038 & 0.6106 \\
-450 & 0.6750 & 0.6014 & 0.5969 \\
-600 & 0.6900 & 0.6303 & 0.5917 \\
-750 & 0.7250 & 0.5562 & 0.6143 \\
-900 & 0.7250 & 0.6140 & 0.4900 \\
-1,050 & 0.7500 & 0.5733 & 0.5175 \\
-1,200 & 0.7400 & 0.5298 & 0.4886 \\
+GPT flagship / QueryNER & 0.204 & Entity segmentation; sample and execution details unverified. \\
+Claude Sonnet 5 / QueryNER & 0.427 & Entity segmentation; sample and execution details unverified. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Training Logs, Checkpoint History, and Reproducibility}
+\label{app:training-logs}
+\subsection{Complete loss trace and approximate epoch summaries}
+The released clean-run log contains one loss record for every optimizer step from 1 to 1,200. At each step, the training script averages the completion-token losses of eight microbatches; the logged value is rounded to four decimal places. It is an average of microbatch losses, not a token-weighted average over an epoch. Figure~\ref{fig:training-loss} plots every logged value and a trailing mean over at most 50 steps. The original CSV is included unchanged in the source package as \path{evidence/training_loss_history.csv} and is available in the repository at \href{https://github.com/arghya05/commercecore/blob/main/train/results_multitask_clean/multitask_training_loss_log.csv}{the complete training-loss log}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=0.95\linewidth,height=5.6cm,xlabel={Optimizer step},ylabel={Logged training loss (log scale)},
+ xmin=0,xmax=1200,ymode=log,xtick={0,150,300,450,600,750,900,1050,1200},
+ tick label style={font=\small},label style={font=\small},
+ legend style={font=\small,at={(0.5,1.03)},anchor=south,draw=none,legend columns=2},grid=major,grid style={black!10}]
+\addplot[black!25,thin,no marks] table[x=step,y=loss,col sep=comma]{evidence/training_loss_curve.csv};
+\addlegendentry{All 1,200 logged losses}
+\addplot[blue!70!black,thick,no marks] table[x=step,y=trailing_50_mean,col sep=comma]{evidence/training_loss_curve.csv};
+\addlegendentry{Trailing 50-step mean}
+\draw[dotted,black] (axis cs:750,0.001)--(axis cs:750,3);
+\end{axis}
+\end{tikzpicture}
+\caption{Training loss from the archived run, including individual-step fluctuations. The dotted line marks selected checkpoint 750. Smoothing summarizes the stored loss values and does not add observations; no validation-loss trace was recorded.}
+\label{fig:training-loss}
+\end{figure}
+
+One pass through 2,130 examples spans 266.25 optimizer steps at accumulation eight. Table~\ref{tab:epoch-loss} uses boundaries $\lfloor k\cdot2{,}130/8\rfloor$, followed by the final partial pass. Some optimizer steps straddle pass boundaries, so these are approximate epoch windows. Means are arithmetic averages of the rounded logged values; the end-step column also preserves the epoch-boundary loss view used in the project record. Lower training loss alone does not establish improved generalization.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Loss by approximate training pass, recomputed from all 1,200 records. The final row covers the incomplete fifth pass.}
+\label{tab:epoch-loss}
+\begin{tabular}{rrrrr}
+\toprule
+Steps & Passes at end & Logged steps & Mean loss & End-step loss \\
+\midrule
+\inputtablerows evidence/loss_window_rows.tex
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Every checkpoint with its exact training-loss record}
+\begin{table}[h]
+\centering\small
+\caption{Complete eight-checkpoint history joined to the exact loss-log step. C-F1 uses 20 constraint development queries; QN-F1 uses the first 30 QueryNER test examples; similarity uses five lexical probes. Elapsed minutes are logged before that step's checkpoint evaluation and saving. Step 750 is selected.}
+\label{tab:checkpoint-log}
+\begin{tabular}{rrrrrrr}
+\toprule
+Step & Passes & Loss & C-F1 & QN-F1 & Similarity & Minutes \\
+\midrule
+\inputtablerows evidence/checkpoint_rows.tex
+\bottomrule
+\end{tabular}
+\end{table}
+
+At step 1,200, the loss log shows 4,385.8 seconds (73.10 minutes), while the run summary records 4,510.6 seconds (75.18 minutes). The latter also includes the final checkpoint evaluation and saving. A step's loss is the eight-microbatch mean for that update, not the mean loss over all preceding training. The table uses the actual checkpoint steps rather than nearby illustrative loss samples.
 
 The local selected adapter configuration agrees with rank 16, alpha 32, dropout 0.05, and the seven projection targets. It identifies PEFT version 0.21.0 and a pod-local base path, but no base revision. This is not a complete environment lock. The training script uses standard AdamW rather than a paged optimizer.
 
@@ -63,30 +116,41 @@ The exact diagnostic prompts are: ``What is the capital of France?'', ``Write a 
 
 \section{Result-Level Provenance}
 \label{app:provenance}
+\paragraph{Public code, models, and data.}
+Readers can access the \href{https://github.com/arghya05/commercecore}{GitHub project}, \href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b}{CommerceCore model card}, \hfartifact{model.safetensors}{merged model weights}, \hfartifact{config.json}{model configuration}, and \hfartifact{runpod_archive/checkpoints_multitask/step_750/adapter_model.safetensors}{selected step-750 adapter}. The upstream resources are the \href{https://huggingface.co/Qwen/Qwen3-1.7B}{Qwen3-1.7B base model}, \href{https://huggingface.co/datasets/bltlab/queryner}{QueryNER dataset card}, and \href{https://aclanthology.org/2024.lrec-main.1178/}{QueryNER paper}. Local dataset versions are linked as the \gitartifact{data/queryner/train.jsonl}{QueryNER training records}, \gitartifact{data/queryner/test.jsonl}{QueryNER test records}, \gitartifact{data/synthetic_training_text.jsonl}{synthetic query targets}, \gitartifact{data/catalog_training_text.jsonl}{catalog targets}, and \gitartifact{data/held_out_eval_set.jsonl}{20-query development set}.
+
+\paragraph{Fixed evidence versions.}
+The GitHub evidence links in this appendix resolve to commit \code{fa64ee7}; Hugging Face file links resolve to revision \code{425c4a5}. These fixed versions prevent later edits from silently changing the cited evidence. The \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/archive/manifest.json}{archive manifest} records the full Hugging Face revision, file URLs, and SHA-256 hashes of the mirrored inputs. Current manuscript and audit links point to the maintained paper folder; the \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/build_manifest.json}{build manifest} identifies the exact PDF and source-package contents.
+
 \begin{table}[h]
 \centering\small
-\caption{Evidence map. Paths are relative to the repository root. Offline analysis does not rerun model inference.}
-\begin{tabularx}{\linewidth}{@{}p{0.25\linewidth}X@{}}
+\caption{Clickable evidence map for the reported numbers. Offline rescoring verifies the stored predictions and arithmetic without rerunning model inference.}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Result & Artifact and verification boundary \\
 \midrule
-Mixture and seed-42 sample & \path{train/build_multitask_mixture.py}; source JSONL files. Sample reconstructed; historical mixed file absent. \\
-75.18 minutes; \$0.9021 & \path{train/results_multitask_clean/multitask_run_summary.json}. Cost arithmetic verified; not a provider invoice. \\
-Checkpoint trajectories & \path{train/results_multitask_clean/multitask_checkpoint_eval_log.csv} and \path{multitask_retention_log.csv} in the same directory. Aggregate logs only. \\
-Full QueryNER F1 and CI & \path{eval/full_queryner_eval_result.json}. Historical per-example scores absent. \\
-API QueryNER results & \path{eval/queryner_baseline_results.json} and matching script. Sample size and label restriction verifiable. \\
-Repeated API constraints & \path{eval/rigorous_baseline_results.json} and matching script. Pooled-repeat CIs excluded from inference. \\
-Six-query GPU results & \path{eval/fresh_headtohead_gpu_results.json}. All saved predictions rescored. \\
-Six-query API results & \path{eval/fresh_headtohead_frontier_results.json}. Aggregates only. \\
-Generation cost & \path{data/generation_cost_ledger.json}. Sum of 1,630 call estimates verified. \\
-New offline analyses & \path{paper/evidence/audit_results.json}; regenerated by \path{paper/audit_evidence.py}; input SHA-256 hashes included. \\
+Mixture and seed-42 sample & \gitartifact{train/build_multitask_mixture.py}{Mixture builder}; \hfartifact{runpod_archive/data/multitask_train_mixture.jsonl}{archived 2,130-row mixture}. Reconstructed records match in order. \\
+75.18 minutes; \$0.9021 & \gitartifact{train/results_multitask_clean/multitask_run_summary.json}{Run summary}. Cost arithmetic verified; not a provider invoice. \\
+Checkpoint trajectories & \gitartifact{train/results_multitask_clean/multitask_checkpoint_eval_log.csv}{Task-F1 CSV}; \gitartifact{train/results_multitask_clean/multitask_retention_log.csv}{similarity CSV}; \gitartifact{train/results_multitask_clean/MODEL_SELECTION_DECISION.md}{selection note}. Eight checkpoints. \\
+Loss curve and epoch means & \gitartifact{train/results_multitask_clean/multitask_training_loss_log.csv}{All 1,200 loss records}; \hfartifact{runpod_archive/logs/train_multitask_v2.log}{training console log}. Summaries and exact-step joins recomputed. \\
+Served F1 and category scores & \hfartifact{runpod_archive/results/complete_inference_test_results.json}{All 20 served predictions and labels}; \hfartifact{runpod_archive/scripts/complete_inference_test.py}{evaluation script}. F1 0.683 and vertical means reproduced. \\
+Open-model development F1 & \hfartifact{runpod_archive/results/open_model_comparison_results.json}{Stored aggregates}; \hfartifact{runpod_archive/scripts/open_model_comparison.py}{evaluation script}. 0.050 and 0.100; predictions absent. \\
+Full QueryNER F1 and CI & \gitartifact{eval/full_queryner_eval_result.json}{Result JSON}; \gitartifact{eval/full_queryner_eval.py}{scoring script}. Historical per-example scores absent. \\
+API QueryNER results & \gitartifact{eval/queryner_baseline_results.json}{Result JSON}; \gitartifact{eval/queryner_baseline_comparison.py}{prompt and evaluation script}. Fifty queries, restricted labels. \\
+Repeated API constraints & \gitartifact{eval/rigorous_baseline_results.json}{Result JSON}; \gitartifact{eval/rigorous_baseline_comparison.py}{evaluation script}. Pooled-repeat CIs excluded from inference. \\
+Single-run flagship results & \gitartifact{eval/flagship_tier_comparison_results.json}{Result JSON}; \gitartifact{eval/flagship_tier_comparison.py}{evaluation script}. Kept separate from three-repeat runs. \\
+Six-query local/API results & \gitartifact{eval/fresh_headtohead_gpu_results.json}{Local-model predictions}; \gitartifact{eval/fresh_headtohead_frontier_results.json}{API aggregates}; \gitartifact{eval/fresh_head_to_head_comparison.py}{query definitions}. Saved local predictions rescored. \\
+Generation cost & \gitartifact{data/generation_cost_ledger.json}{Generation ledger}. Sum of 1,630 call estimates verified. \\
+Offline analyses and hashes & \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/audit_results.json}{Audit results}; \href{https://github.com/arghya05/commercecore/blob/main/paper/audit_evidence.py}{audit code}. Includes archived-mixture checks and served-model rescoring. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Run the offline audit from the repository root with \code{python3 paper/audit\_evidence.py}. Normalization uses Unicode case folding and whitespace collapse, without punctuation removal or semantic deduplication. The reconstructed QueryNER sample IDs are saved explicitly. Their reconstruction does not prove historical file identity. The hash manifest identifies exactly which data and scripts were audited.
+Run the offline audit from the repository root with \code{python3 paper/audit\_evidence.py}. Normalization uses Unicode case folding and whitespace collapse, without punctuation removal or semantic deduplication. The \href{https://github.com/arghya05/commercecore/blob/main/paper/evidence/reconstructed_queryner_train_ids.txt}{reconstructed QueryNER sample IDs} are saved explicitly; the reconstructed prompt/completion sequence matches the archived mixed training file. The hash manifest identifies exactly which data and scripts were audited.
 
-Some previously reported numbers lack sufficient local measurement artifacts for primary use: merged-service constraint F1 of 0.683 and its vertical breakdown; QueryNER flagship values of 0.204 and 0.427; and open-model development values of 0.05 and 0.10. A narrative claim or executable script alone is not a saved measurement. These values are excluded from the main results. A comment also records a 313/450 generic-template issue in an earlier batch, but that batch is unavailable for recounting; no measured before/after quality improvement is inferred.
+The implementation links are the \gitartifact{train/train_multitask.py}{training loop}, \gitartifact{data/generate_scaled_query_training_data.py}{query generator}, \gitartifact{validators/mechanical_validator.py}{validator}, and \hfartifact{runpod_archive/scripts/serve_inference.py}{archived serving parser}. The eight-query \hfartifact{runpod_archive/results/full_inference_test_results.json}{JSON-format smoke test} stores eight valid JSON outputs, which are independently parseable; it lacks gold constraints and is not an extraction-accuracy benchmark. The maintained \href{https://github.com/arghya05/commercecore/blob/main/paper/CommerceCore_Paper.pdf}{paper PDF}, \href{https://github.com/arghya05/commercecore/blob/main/paper/commercecore_paper.tex}{LaTeX source}, and \href{https://github.com/arghya05/commercecore/blob/main/paper/CommerceCore_arXiv_Source.zip}{self-contained source ZIP} are linked for inspection and rebuilding.
+
+Table~\ref{tab:original-results} preserves the original manuscript's additional benchmark values with their evidence status. A narrative claim or executable script alone is not a saved measurement. A comment also records a 313/450 generic-template issue in an earlier batch, but that batch is unavailable for recounting; no measured before/after quality improvement is inferred.
 
 The original planning documents describe broader retrieval, tool execution, and merchant-transfer objectives. A plan is not evidence of a completed experiment. This paper reports the implemented extraction study only.
 
