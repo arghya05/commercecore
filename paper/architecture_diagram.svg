@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="820" viewBox="0 0 1100 820" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill: #f5f7fa; stroke: #2b5b84; stroke-width: 1.5; rx: 6; }
+    .box-data { fill: #eef7ee; stroke: #3a7d3a; stroke-width: 1.5; rx: 6; }
+    .box-model { fill: #fdf1e3; stroke: #b5651d; stroke-width: 1.5; rx: 6; }
+    .box-eval { fill: #f0eefa; stroke: #5b3d9e; stroke-width: 1.5; rx: 6; }
+    .label { font-size: 14px; fill: #111; text-anchor: middle; }
+    .sublabel { font-size: 11.5px; fill: #333; text-anchor: middle; }
+    .title { font-size: 18px; font-weight: bold; fill: #111; text-anchor: middle; }
+    .section-title { font-size: 13px; font-weight: bold; fill: #555; text-anchor: start; }
+    .arrow { stroke: #333; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  </style>
+
+  <text x="550" y="30" class="title">CommerceCore: Training and Serving Pipeline</text>
+
+  <!-- Stage 1: Data sources -->
+  <text x="40" y="65" class="section-title">1. Data Sources</text>
+
+  <rect x="30" y="75" width="180" height="55" class="box-data"/>
+  <text x="120" y="97" class="label">QueryNER</text>
+  <text x="120" y="115" class="sublabel">1,500 examples (real,</text>
+  <text x="120" y="128" class="sublabel">human-annotated, CC BY 4.0)</text>
+
+  <rect x="230" y="75" width="200" height="55" class="box-data"/>
+  <text x="330" y="97" class="label">Structured Scenario Generator</text>
+  <text x="330" y="115" class="sublabel">Deterministic, code-only:</text>
+  <text x="330" y="128" class="sublabel">product + fixed constraints</text>
+
+  <rect x="450" y="75" width="200" height="55" class="box-data"/>
+  <text x="550" y="97" class="label">LLM Paraphraser</text>
+  <text x="550" y="115" class="sublabel">Claude Sonnet 4.5:</text>
+  <text x="550" y="128" class="sublabel">surface form ONLY, no labels</text>
+
+  <line x1="430" y1="102" x2="450" y2="102" class="arrow"/>
+
+  <!-- Quality gates -->
+  <text x="40" y="175" class="section-title">2. Mechanical Quality Gates (4 checks)</text>
+  <rect x="30" y="185" width="620" height="70" class="box"/>
+  <text x="150" y="207" class="label">Schema Validity</text>
+  <text x="150" y="222" class="sublabel">parses vs. Pydantic schema</text>
+  <line x1="192" y1="220" x2="192" y2="220" class="arrow"/>
+  <text x="340" y="207" class="label">Source-Span Binding</text>
+  <text x="340" y="222" class="sublabel">evidence is literal substring</text>
+  <text x="530" y="207" class="label">Execution Correctness</text>
+  <text x="530" y="222" class="sublabel">simulator resolves plan</text>
+  <text x="340" y="245" class="sublabel">+ Naturalness gate (added after finding 69.6% generic-template failure rate — Sec 3.1.1)</text>
+
+  <line x1="550" y1="130" x2="340" y2="185" class="arrow"/>
+  <line x1="120" y1="130" x2="150" y2="185" class="arrow"/>
+
+  <!-- Training mixture -->
+  <text x="40" y="290" class="section-title">3. Training Mixture (2,130 examples)</text>
+  <rect x="30" y="300" width="620" height="45" class="box-data"/>
+  <text x="340" y="327" class="label">1,500 real QueryNER + 450 synthetic query-constraint + 180 synthetic catalog-attribute</text>
+
+  <line x1="340" y1="255" x2="340" y2="300" class="arrow"/>
+
+  <!-- Training -->
+  <text x="40" y="390" class="section-title">4. QLoRA Fine-Tuning</text>
+  <rect x="30" y="400" width="300" height="90" class="box-model"/>
+  <text x="180" y="422" class="label">Qwen3-1.7B (Apache-2.0)</text>
+  <text x="180" y="440" class="sublabel">NF4 double-quant, BF16 compute</text>
+  <text x="180" y="455" class="sublabel">LoRA r=16, alpha=32, dropout=0.05</text>
+  <text x="180" y="470" class="sublabel">1,200 steps, ~4.5 epochs, $0.90</text>
+
+  <line x1="340" y1="345" x2="180" y2="400" class="arrow"/>
+
+  <!-- Checkpoint eval loop -->
+  <rect x="360" y="400" width="290" height="90" class="box-eval"/>
+  <text x="505" y="422" class="label">Checkpoint + Eval Loop</text>
+  <text x="505" y="440" class="sublabel">every 150 steps: task F1 (2 tasks)</text>
+  <text x="505" y="455" class="sublabel">+ retention vs. frozen base</text>
+  <text x="505" y="470" class="sublabel">(5 fixed unrelated probes)</text>
+
+  <line x1="330" y1="445" x2="360" y2="445" class="arrow"/>
+  <path d="M 505 490 Q 505 510 400 490" class="arrow" fill="none"/>
+
+  <!-- Model selection -->
+  <text x="40" y="530" class="section-title">5. Checkpoint Selection (evidence-based, not default-final)</text>
+  <rect x="30" y="540" width="620" height="55" class="box-eval"/>
+  <text x="340" y="562" class="label">Select checkpoint 750 over final 1200</text>
+  <text x="340" y="580" class="sublabel">(retention 0.614 vs. 0.489 — measured forgetting in final 450 steps, task gain marginal)</text>
+
+  <line x1="180" y1="490" x2="250" y2="540" class="arrow"/>
+  <line x1="505" y1="490" x2="450" y2="540" class="arrow"/>
+
+  <!-- Merge -->
+  <text x="40" y="640" class="section-title">6. Merge to Portable Artifact</text>
+  <rect x="30" y="650" width="300" height="55" class="box-model"/>
+  <text x="180" y="672" class="label">merge_and_export.py</text>
+  <text x="180" y="690" class="sublabel">LoRA folded into base weights</text>
+
+  <line x1="340" y1="595" x2="180" y2="650" class="arrow"/>
+
+  <!-- Serving -->
+  <rect x="360" y="650" width="290" height="55" class="box-eval"/>
+  <text x="505" y="672" class="label">Serve anywhere</text>
+  <text x="505" y="690" class="sublabel">RunPod GPU / local CPU / REST API / Docker</text>
+
+  <line x1="330" y1="677" x2="360" y2="677" class="arrow"/>
+
+  <!-- Publish -->
+  <rect x="720" y="650" width="350" height="55" class="box-data"/>
+  <text x="895" y="672" class="label">Published: Hugging Face + GitHub</text>
+  <text x="895" y="690" class="sublabel">weights, code, data, full logs — all public</text>
+
+  <line x1="650" y1="677" x2="720" y2="677" class="arrow"/>
+
+  <!-- Legend -->
+  <text x="720" y="90" class="section-title">Legend</text>
+  <rect x="720" y="100" width="25" height="18" class="box-data"/>
+  <text x="755" y="114" class="sublabel" text-anchor="start">Data</text>
+  <rect x="720" y="128" width="25" height="18" class="box"/>
+  <text x="755" y="142" class="sublabel" text-anchor="start">Validation</text>
+  <rect x="720" y="156" width="25" height="18" class="box-model"/>
+  <text x="755" y="170" class="sublabel" text-anchor="start">Model / Training</text>
+  <rect x="720" y="184" width="25" height="18" class="box-eval"/>
+  <text x="755" y="198" class="sublabel" text-anchor="start">Evaluation / Decision</text>
+</svg>
