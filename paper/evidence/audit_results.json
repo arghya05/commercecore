@@ -1,0 +1,566 @@
+{
+  "analysis_type": "Offline reanalysis of existing artifacts; no new training or model inference",
+  "normalization": "Unicode casefold and whitespace collapse; no punctuation removal or semantic deduplication",
+  "queryner": {
+    "n_train_available": 7841,
+    "n_train_sample_reconstructed": 1500,
+    "n_test": 993,
+    "source_revisions": [
+      "f2f9173d14243496dbcf017a9dc2ded74989a45e"
+    ],
+    "train_test_normalized_overlap_ids": [],
+    "sample_test_overlap_ids": [],
+    "label_audits": {
+      "30": {
+        "n_records": 30,
+        "label_counts": {
+          "UoM": 3,
+          "color": 2,
+          "content": 3,
+          "core_product_type": 26,
+          "creator": 7,
+          "department": 10,
+          "material": 2,
+          "modifier": 16,
+          "occasion": 1,
+          "product_name": 5,
+          "product_number": 1
+        },
+        "n_labels": 11,
+        "n_gold_spans": 76,
+        "n_gold_spans_outside_baseline_prompt": 34,
+        "oracle_macro_f1_if_prompt_labels_obeyed": 0.6563492063492065
+      },
+      "50": {
+        "n_records": 50,
+        "label_counts": {
+          "UoM": 3,
+          "color": 3,
+          "content": 7,
+          "core_product_type": 43,
+          "creator": 11,
+          "department": 12,
+          "material": 4,
+          "modifier": 24,
+          "occasion": 1,
+          "origin": 1,
+          "product_name": 8,
+          "product_number": 1,
+          "shape": 1
+        },
+        "n_labels": 13,
+        "n_gold_spans": 119,
+        "n_gold_spans_outside_baseline_prompt": 52,
+        "oracle_macro_f1_if_prompt_labels_obeyed": 0.6478095238095238
+      },
+      "993": {
+        "n_records": 993,
+        "label_counts": {
+          "UoM": 86,
+          "color": 83,
+          "condition": 8,
+          "content": 113,
+          "core_product_type": 878,
+          "creator": 212,
+          "department": 167,
+          "material": 48,
+          "modifier": 463,
+          "occasion": 56,
+          "origin": 8,
+          "price": 4,
+          "product_name": 129,
+          "product_number": 7,
+          "quantity": 17,
+          "shape": 41,
+          "time": 1
+        },
+        "n_labels": 17,
+        "n_gold_spans": 2321,
+        "n_gold_spans_outside_baseline_prompt": 980,
+        "oracle_macro_f1_if_prompt_labels_obeyed": 0.6769545549001734
+      }
+    },
+    "historical_full_result": {
+      "MEASURED_HERE": true,
+      "benchmark": "QueryNER FULL public test set",
+      "n_examples": 993,
+      "checkpoint": "step_750 (selected per MODEL_SELECTION_DECISION.md)",
+      "mean_f1": 0.49847396644979725,
+      "bootstrap_95ci_lower": 0.47494786739499734,
+      "bootstrap_95ci_upper": 0.5223204735289327,
+      "n_bootstrap_resamples": 10000
+    },
+    "historical_baseline_results": {
+      "MEASURED_HERE": true,
+      "benchmark": "QueryNER public test set (real subsample)",
+      "n_sample": 50,
+      "results": {
+        "claude_haiku_4.5": {
+          "mean_f1": 0.2633333333333333,
+          "n_examples": 50,
+          "elapsed_seconds": 50.3
+        },
+        "gpt_cheap_tier": {
+          "mean_f1": 0.29400000000000004,
+          "n_examples": 50,
+          "elapsed_seconds": 51.4
+        }
+      }
+    },
+    "selection_exposed_test_rows": 30
+  },
+  "synthetic": {
+    "n_query_rows": 450,
+    "n_unique_normalized_queries": 374,
+    "n_repeated_rows_beyond_first": 76,
+    "n_conflicting_query_groups": 8,
+    "n_rows_in_conflicting_groups": 20,
+    "conflicts": [
+      {
+        "query": "black leather ankle boots size m",
+        "rows_1based": [
+          78,
+          137
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "material",
+              "eq",
+              "leather"
+            ],
+            [
+              "size",
+              "eq",
+              "M"
+            ]
+          ],
+          [
+            [
+              "size",
+              "eq",
+              "M"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "black waterproof windbreaker size s",
+        "rows_1based": [
+          1,
+          24,
+          65
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "color",
+              "eq",
+              "black"
+            ]
+          ],
+          [
+            [
+              "color",
+              "eq",
+              "black"
+            ],
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "black wool waterproof trainers uk size 8 under 65 pounds",
+        "rows_1based": [
+          13,
+          40,
+          46,
+          127
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "color",
+              "eq",
+              "black"
+            ],
+            [
+              "material",
+              "eq",
+              "wool"
+            ]
+          ],
+          [
+            [
+              "color",
+              "eq",
+              "black"
+            ],
+            [
+              "material",
+              "eq",
+              "wool"
+            ],
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ],
+          [
+            [
+              "material",
+              "eq",
+              "wool"
+            ]
+          ],
+          [
+            [
+              "material",
+              "eq",
+              "wool"
+            ],
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "charcoal wool coat size m under 150 pounds",
+        "rows_1based": [
+          37,
+          105
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "material",
+              "eq",
+              "wool"
+            ]
+          ],
+          [
+            [
+              "size",
+              "eq",
+              "M"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "charcoal wool coat size m under 80 pounds",
+        "rows_1based": [
+          10,
+          97
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "price_gbp",
+              "lte",
+              "80"
+            ]
+          ],
+          [
+            [
+              "price_gbp",
+              "lte",
+              "80"
+            ],
+            [
+              "size",
+              "eq",
+              "M"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "cordless drill battery powered 24 month warranty under 60 pounds",
+        "rows_1based": [
+          305,
+          335
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "warranty_months",
+              "gte",
+              "12"
+            ],
+            [
+              "warranty_months",
+              "gte",
+              "24"
+            ]
+          ],
+          [
+            [
+              "warranty_months",
+              "gte",
+              "24"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "red waterproof windbreaker size s under 80 pounds",
+        "rows_1based": [
+          28,
+          128
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "price_gbp",
+              "lte",
+              "80"
+            ]
+          ],
+          [
+            [
+              "price_gbp",
+              "lte",
+              "80"
+            ],
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ]
+        ]
+      },
+      {
+        "query": "waterproof charcoal wool coat size m under 150 pounds",
+        "rows_1based": [
+          2,
+          22,
+          76
+        ],
+        "distinct_target_sets": [
+          [
+            [
+              "size",
+              "eq",
+              "M"
+            ],
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ],
+          [
+            [
+              "waterproof",
+              "eq",
+              "true"
+            ]
+          ]
+        ]
+      }
+    ],
+    "target_length_counts": {
+      "1": 192,
+      "2": 238,
+      "3": 20
+    },
+    "blocklist_hit_rows_1based": [],
+    "query_vertical_counts": {
+      "fashion": 150,
+      "grocery": 150,
+      "general": 150
+    },
+    "catalog_vertical_counts": {
+      "fashion": 60,
+      "grocery": 60,
+      "general": 60
+    },
+    "n_catalog_rows": 180
+  },
+  "constraints": {
+    "n_development": 20,
+    "vertical_counts": {
+      "fashion": 7,
+      "grocery": 7,
+      "general": 6
+    },
+    "empty_gold_development": 1,
+    "development_training_exact_overlap": [],
+    "fresh_training_exact_overlap": [],
+    "fresh_development_exact_overlap": [],
+    "fresh_recomputed": {
+      "commercecore": {
+        "n": 6,
+        "macro_f1": 0.39999999999999997,
+        "per_query_f1": [
+          0.4,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.0,
+          0.0
+        ],
+        "micro_precision": 0.4444444444444444,
+        "micro_recall": 0.3333333333333333,
+        "micro_f1": 0.38095238095238093,
+        "exact_set_matches": 0,
+        "true_positives": 4,
+        "n_predicted": 9,
+        "n_gold": 12,
+        "empty_parsed_outputs": 0
+      },
+      "qwen3.5-2b_unfinetuned": {
+        "n": 6,
+        "macro_f1": 0.0,
+        "per_query_f1": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "micro_precision": 0,
+        "micro_recall": 0.0,
+        "micro_f1": 0.0,
+        "exact_set_matches": 0,
+        "true_positives": 0,
+        "n_predicted": 0,
+        "n_gold": 12,
+        "empty_parsed_outputs": 6
+      },
+      "smollm3-3b_unfinetuned": {
+        "n": 6,
+        "macro_f1": 0.0,
+        "per_query_f1": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "micro_precision": 0,
+        "micro_recall": 0.0,
+        "micro_f1": 0.0,
+        "exact_set_matches": 0,
+        "true_positives": 0,
+        "n_predicted": 0,
+        "n_gold": 12,
+        "empty_parsed_outputs": 6
+      }
+    }
+  },
+  "training": {
+    "historical_run_summary": {
+      "n_steps": 1200,
+      "n_training_examples": 2130,
+      "total_time_seconds": 4510.6,
+      "total_time_minutes": 75.18,
+      "peak_vram_gb": 2.13,
+      "estimated_cost_usd": 0.9021
+    },
+    "checkpoint_history": [
+      {
+        "step": 150,
+        "constraint_f1": 0.7083,
+        "queryner_f1": 0.6248,
+        "output_similarity": 0.5969
+      },
+      {
+        "step": 300,
+        "constraint_f1": 0.6983,
+        "queryner_f1": 0.6038,
+        "output_similarity": 0.6106
+      },
+      {
+        "step": 450,
+        "constraint_f1": 0.675,
+        "queryner_f1": 0.6014,
+        "output_similarity": 0.5969
+      },
+      {
+        "step": 600,
+        "constraint_f1": 0.69,
+        "queryner_f1": 0.6303,
+        "output_similarity": 0.5917
+      },
+      {
+        "step": 750,
+        "constraint_f1": 0.725,
+        "queryner_f1": 0.5562,
+        "output_similarity": 0.6143
+      },
+      {
+        "step": 900,
+        "constraint_f1": 0.725,
+        "queryner_f1": 0.614,
+        "output_similarity": 0.49
+      },
+      {
+        "step": 1050,
+        "constraint_f1": 0.75,
+        "queryner_f1": 0.5733,
+        "output_similarity": 0.5175
+      },
+      {
+        "step": 1200,
+        "constraint_f1": 0.74,
+        "queryner_f1": 0.5298,
+        "output_similarity": 0.4886
+      }
+    ],
+    "pareto_steps_on_three_logged_signals": [
+      150,
+      300,
+      600,
+      750,
+      900,
+      1050
+    ],
+    "approximate_passes_full_run": 4.507042253521127,
+    "approximate_passes_selected_checkpoint": 2.816901408450704,
+    "historical_gpu_rate_usd_per_hour": 0.72,
+    "recomputed_run_cost_usd": 0.9021200000000001
+  },
+  "generation_ledger": {
+    "n_calls": 1630,
+    "historical_estimated_total_usd": 1.882587,
+    "recomputed_sum_usd": 1.882587,
+    "scope": "cumulative recorded generation calls; not total project cost or invoices"
+  },
+  "inputs_sha256": {
+    "data/catalog_training_text.jsonl": "d4b2b1c64360ad1a1013f77883d7dcec3d5231dba25bc0ad447949a7c288b3e8",
+    "data/generate_scaled_query_training_data.py": "4af0e79d639ae970d43cc83f905670b15ee73638f67dbf23aee060f9fe0077a3",
+    "data/generation_cost_ledger.json": "fd3d03f84dcb63056d4a56a54ee75744736560ee45c8ca163b0fc2c988dca3b6",
+    "data/held_out_eval_set.jsonl": "9ab31fa64f86b155b2326dc9dad9c8259a1a864ca03ef0a133dce6f7bc4267ec",
+    "data/queryner/test.jsonl": "747ba3b3e5aa704a22d8932cb75a7257dace2e4799465d4755047fde2d0961f9",
+    "data/queryner/train.jsonl": "9467eb25cc7877d8e171396a8d18ffbf35b00ae808db9777e3781109a0f3f635",
+    "data/synthetic_training_text.jsonl": "003444701658bb8b8c5c62881cb1f2fc91d111d26a34238f45fd2f5139592a60",
+    "eval/fresh_head_to_head_comparison.py": "68240e1701249013f3250fadefa1268804738cb1cfe6ab3e7e2ba1483f3ad2ad",
+    "eval/fresh_headtohead_frontier_results.json": "96b4196befa47075b5acfc6ec7c3965d37312d5f82eac4214286a17d0ee7934a",
+    "eval/fresh_headtohead_gpu_results.json": "d011849ba192f497b7ab8281de15772042a31dec284dd204acab70c6efff328b",
+    "eval/full_queryner_eval.py": "177bfc5db8b40dfd27bdcd683b1f47d95480e070dfb2b889da1aca45389d6abb",
+    "eval/full_queryner_eval_result.json": "f764fea2d0edc105994c08290a4ce452b77e5a647e1acb897419e2073e1ac7db",
+    "eval/queryner_baseline_comparison.py": "0e09c044f29ff56218df5994cd4b0aa65446061ec30a6969b54365c599f627a9",
+    "eval/queryner_baseline_results.json": "f167a2f9c10ab3c560649dfe73320e92b9bc49b4c166e0951844383a2a59119b",
+    "eval/rigorous_baseline_comparison.py": "81522e956668f15a29b445a2e9fd260347a481d39830c1e8d7a73059b6e392d3",
+    "eval/rigorous_baseline_results.json": "6061488c7c81288baf1f84a3147f44d107682d2a8407823575401fdc68cd8374",
+    "train/build_multitask_mixture.py": "b49d76b42fd716c259ed3e066b83de1bb457d034586623472adfdb231ec39e46",
+    "train/results_multitask_clean/multitask_checkpoint_eval_log.csv": "f45ae666ecbaac81383bb7fe72bc08fa79f298ed938959c92a0597a420006523",
+    "train/results_multitask_clean/multitask_retention_log.csv": "531b44aac5a297479397efa34ed52b1c66783e216f31067a8eb190ff0dd4c669",
+    "train/results_multitask_clean/multitask_run_summary.json": "f149c171f6f3f8c7f50b60443938c5b5f919a96c4bb78b81aa9850f0f5896057",
+    "train/train_multitask.py": "730be731256d1b1f3bf0b910609f4133605835d5519f225e90ec2de32e527084",
+    "validators/mechanical_validator.py": "a49b0ac042009de21f73753cb6b5fe542542d6cb8173ec061ea272154ee7a65f"
+  }
+}

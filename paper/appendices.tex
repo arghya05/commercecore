@@ -1,0 +1,127 @@
+\section{Historical Baseline Records}
+\label{app:baselines}
+Table~\ref{tab:api} preserves numerical context without presenting a controlled ranking. The two QueryNER API aggregates use the first 50 records and the restricted two-label prompt; CommerceCore has no saved result on exactly that sample. The repeated constraint aggregates use 20 development queries with three calls per query and model-dependent sampling settings. Historical notes describe the Sonnet repetitions as identical, but omitting a temperature parameter is not itself proof of deterministic generation.
+
+The six-query API file contains aggregates and aliases, without per-query responses or the provider-side execution script. Its values cannot support paired significance testing or a response-level fairness audit. The GPU-side diagnostic file has parsed predictions and gold labels, permitting rescoring but not inspection of raw generations.
+
+\begin{table}[h]
+\centering
+\caption{Historical mean per-query F1, grouped by scope. QN = first 50 QueryNER examples; Dev = 20 constraint queries with three repeats; Diag = six queries. A dash means the value is unavailable in these records. No column establishes a controlled comparison with CommerceCore.}
+\label{tab:api}
+\begin{tabular}{lrrr}
+\toprule
+Stored model / alias & QN & Dev & Diag \\
+\midrule
+Claude Haiku 4.5 & 0.263 & 0.518 & 0.298 \\
+Claude Sonnet 5 & --- & 0.592 & 0.493 \\
+GPT-4o mini / cheap tier & 0.294 & 0.618 & 0.428 \\
+GPT-5 / flagship & --- & 0.504 & 0.167 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A separate single-run flagship artifact records 0.608 for the Sonnet configuration and 0.542 for GPT-5 on the same development set. These are distinct runs from the three-repeat aggregates. We preserve their files rather than merging unlike measurements. Historical scripts convert API errors into empty predictions or zeros, so end-to-end scores can include request failures.
+
+\section{Checkpoint History and Reproducibility Details}
+\begin{table}[h]
+\centering
+\caption{Complete history from the two checkpoint CSV logs. Similarity is a five-probe lexical diagnostic; QueryNER F1 is evaluated on the first 30 test examples.}
+\begin{tabular}{rrrr}
+\toprule
+Step & Constraint F1 & QueryNER F1 & Similarity \\
+\midrule
+150 & 0.7083 & 0.6248 & 0.5969 \\
+300 & 0.6983 & 0.6038 & 0.6106 \\
+450 & 0.6750 & 0.6014 & 0.5969 \\
+600 & 0.6900 & 0.6303 & 0.5917 \\
+750 & 0.7250 & 0.5562 & 0.6143 \\
+900 & 0.7250 & 0.6140 & 0.4900 \\
+1,050 & 0.7500 & 0.5733 & 0.5175 \\
+1,200 & 0.7400 & 0.5298 & 0.4886 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The local selected adapter configuration agrees with rank 16, alpha 32, dropout 0.05, and the seven projection targets. It identifies PEFT version 0.21.0 and a pod-local base path, but no base revision. This is not a complete environment lock. The training script uses standard AdamW rather than a paged optimizer.
+
+The exact diagnostic prompts are: ``What is the capital of France?'', ``Write a short sentence about the weather today.'', ``What is 12 plus 15?'', ``Name one primary color.'', and ``Complete this sentence: The sun rises in the''. Decoding is greedy with 30 new tokens. Only similarity against the frozen base is logged; assigning a variable for the preceding checkpoint does not create an additional retention measurement.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=5.7cm,xlabel={Base-output similarity (five probes)},ylabel={Constraint development F1},
+ xmin=0.477,xmax=0.634,ymin=0.665,ymax=0.766,grid=major,grid style={black!10},
+ tick label style={font=\small},label style={font=\small},point meta=explicit symbolic,
+ nodes near coords, every node near coord/.append style={font=\scriptsize,anchor=south}]
+\addplot[only marks,mark=*,blue!70!black] table[x=output_similarity,y=constraint_f1,meta=step,col sep=comma]{evidence/checkpoint_history.csv};
+\addplot[black!55,dashed,no marks] coordinates {(0.5175,0.7500) (0.6143,0.7250)};
+\addplot[only marks,mark=o,mark size=4pt,black,thick] coordinates {(0.6143,0.7250)};
+\end{axis}
+\end{tikzpicture}
+\caption{Constraint-F1/similarity projection with optimizer-step labels. The dashed segment connects the two nondominated points in this two-dimensional projection; it is not an interpolated achievable frontier. The circled point is selected step 750. Including QueryNER F1 produces the larger three-dimensional nondominated set reported in the main text. Similarity is not general-capability accuracy.}
+\end{figure}
+
+\section{Result-Level Provenance}
+\label{app:provenance}
+\begin{table}[h]
+\centering\small
+\caption{Evidence map. Paths are relative to the repository root. Offline analysis does not rerun model inference.}
+\begin{tabularx}{\linewidth}{@{}p{0.25\linewidth}X@{}}
+\toprule
+Result & Artifact and verification boundary \\
+\midrule
+Mixture and seed-42 sample & \path{train/build_multitask_mixture.py}; source JSONL files. Sample reconstructed; historical mixed file absent. \\
+75.18 minutes; \$0.9021 & \path{train/results_multitask_clean/multitask_run_summary.json}. Cost arithmetic verified; not a provider invoice. \\
+Checkpoint trajectories & \path{train/results_multitask_clean/multitask_checkpoint_eval_log.csv} and \path{multitask_retention_log.csv} in the same directory. Aggregate logs only. \\
+Full QueryNER F1 and CI & \path{eval/full_queryner_eval_result.json}. Historical per-example scores absent. \\
+API QueryNER results & \path{eval/queryner_baseline_results.json} and matching script. Sample size and label restriction verifiable. \\
+Repeated API constraints & \path{eval/rigorous_baseline_results.json} and matching script. Pooled-repeat CIs excluded from inference. \\
+Six-query GPU results & \path{eval/fresh_headtohead_gpu_results.json}. All saved predictions rescored. \\
+Six-query API results & \path{eval/fresh_headtohead_frontier_results.json}. Aggregates only. \\
+Generation cost & \path{data/generation_cost_ledger.json}. Sum of 1,630 call estimates verified. \\
+New offline analyses & \path{paper/evidence/audit_results.json}; regenerated by \path{paper/audit_evidence.py}; input SHA-256 hashes included. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Run the offline audit from the repository root with \code{python3 paper/audit\_evidence.py}. Normalization uses Unicode case folding and whitespace collapse, without punctuation removal or semantic deduplication. The reconstructed QueryNER sample IDs are saved explicitly. Their reconstruction does not prove historical file identity. The hash manifest identifies exactly which data and scripts were audited.
+
+Some previously reported numbers lack sufficient local measurement artifacts for primary use: merged-service constraint F1 of 0.683 and its vertical breakdown; QueryNER flagship values of 0.204 and 0.427; and open-model development values of 0.05 and 0.10. A narrative claim or executable script alone is not a saved measurement. These values are excluded from the main results. A comment also records a 313/450 generic-template issue in an earlier batch, but that batch is unavailable for recounting; no measured before/after quality improvement is inferred.
+
+The original planning documents describe broader retrieval, tool execution, and merchant-transfer objectives. A plan is not evidence of a completed experiment. This paper reports the implemented extraction study only.
+
+\section{Protocol for a Confirmatory Experimental Extension}
+\label{app:future}
+This section specifies additional experiments motivated by the study, not completed results. The intended questions are the effect of task specialization, the contribution of each data source, robustness to linguistic and schema shifts, and accuracy--latency--cost trade-offs.
+
+\paragraph{Data integrity and independent evaluation.}
+Freeze an annotation contract for supported fields, negation, unit conversion, and unsupported requests. Serialize the validated target itself and audit completeness as well as span binding. Group repeated scenarios and paraphrases before splitting. Use development data for checkpoint and prompt selection. In a new training cycle, use the QueryNER development split rather than test examples. Do not relabel historical selection data as unseen. Build a separate constraint test set with documented provenance and label validation.
+
+\paragraph{Robustness coverage.}
+A planned 300--1,000-query benchmark should stratify one, two, three, and four-or-more constraints; negation; units; implicit values; paraphrases; and typos. Counts alone do not establish independence or label validity. Separate linguistically perturbed scenarios from merchant/schema transfer and include genuinely distinct scenarios or sources where permitted. Determine sample size from a prespecified precision or power target, not an observed favorable difference. Labels need independent validation; mechanically generated cases should be identified as synthetic stress tests.
+
+\paragraph{Specialist baselines and ablations.}
+Evaluate the unfine-tuned Qwen3-1.7B backbone, QueryNER-style BERT and domain-adapted BERT, a modern encoder tagger, a small sequence-to-sequence extractor, deterministic rules, API models, and CommerceCore on identical records. Supply the full ontology, appropriate templates, and sufficient generation budgets. Entity-only encoders should be compared on the entity task unless a documented normalization/extraction head makes constraint outputs comparable. Continued pretraining entails additional data and compute that must be reported.
+
+Match presentation counts, token budgets, tuning allowance, and decoding for data-source and task-sharing ablations. ``Real only'' contains entity supervision but no synthetic constraint targets; that setting changes task coverage as well as data origin and should be interpreted accordingly. Table~\ref{tab:ablationplan} defines the scope without inventing scores.
+
+\begin{table}[h]
+\centering\small
+\caption{Planned ablations; no results have been produced for this table. C = synthetic query constraints; E = human entity labels; A = synthetic catalog attributes. Historical checkpoint comparisons are not substitutes for these controls.}
+\label{tab:ablationplan}
+\begin{tabularx}{\linewidth}{@{}lclX@{}}
+\toprule
+Configuration & Sources & Status & Interpretation \\
+\midrule
+Real only & E & Not run & Entity training; constraint task lacks direct targets. \\
+Synthetic only & C+A & Not run & Removes human entity supervision. \\
+Real + query synthetic & E+C & Not run & Removes catalog task from the mixture. \\
+No phrase gate & E+C+A & Not run & Requires archived pre-gate data and matched sampling. \\
+No QueryNER multitask & C+A & Not run & Same data-source condition as synthetic only. \\
+Corrected full setup & E+C+A & Not run & Repairs label integrity; historical results cannot be reused. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Inference and uncertainty.}
+Run multiple training seeds and archive raw generations, parsed outputs, failure flags, per-query scores, model revisions, and settings. Prespecify a primary endpoint and paired query-level uncertainty; report exact-set correctness, precision/recall, and results by phenomenon and vertical. Use a scored general-capability suite for retention claims. Evaluate batch sizes 1, 8, 32, and 64 where memory permits, including sustained throughput, p50/p95 latency, full device memory, startup, utilization, and comparable API request costs. Record failures rather than omitting infeasible operating points.

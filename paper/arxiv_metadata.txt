@@ -1,0 +1,16 @@
+Title: CommerceCore: Low-Budget Multitask Adaptation for Structured E-Commerce Queries
+Authors: Arghya Mukherjee
+Suggested primary category: cs.IR
+Suggested cross-list: cs.CL
+Comments: Research preprint; code, data, and model-release information available in the CommerceCore repository.
+Journal reference: Leave blank; no acceptance is claimed.
+DOI: Leave blank unless one has actually been assigned.
+License: To be selected by the author in the arXiv submission workflow.
+
+Abstract:
+Structured shopping-query extraction requires both schema compliance and faithful interpretation of user constraints. We study CommerceCore, a 1.7-billion-parameter Qwen3 model adapted with QLoRA using 1,500 human-annotated QueryNER examples, 450 synthetic query examples, and 180 synthetic catalog examples. The recorded training run takes 75.2 minutes, corresponding to an estimated GPU charge of $0.90 at the recorded hourly rate. The selected checkpoint has a recorded mean per-query entity-set F1 of 0.498 on 993 QueryNER examples and constraint-set F1 of 0.725 on 20 development queries. These scores require qualification: 30 QueryNER test examples informed checkpoint selection, and available API baselines use a different sample and an incomplete label vocabulary. An offline audit identifies 374 distinct synthetic queries and eight query groups with conflicting target sets. Reanalysis of six diagnostic predictions gives mean F1 of 0.400, micro-F1 of 0.381, and no exact-set matches, exposing failures in completeness, negation, and normalization. The evidence supports low-budget implementation feasibility, but does not establish superiority over general-purpose models or production reliability. We provide a traceable account of the implementation, distinguish recorded measurements from reproducible offline analyses, and identify the conditions required to test stronger claims.
+
+Source archive: CommerceCore_arXiv_Source.zip
+Top-level source: commercecore_paper.tex
+Author must inspect arXiv compiler output before final submission.
+No arXiv submission has been performed by this repository update.

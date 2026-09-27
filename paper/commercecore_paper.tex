@@ -1,258 +1,261 @@
-\documentclass[10pt,twocolumn]{article}
-\usepackage[margin=0.75in,columnsep=0.25in]{geometry}
-\usepackage{times}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{caption}
-\usepackage{hyperref}
-\usepackage{authblk}
+% Canonical manuscript; see README.md for the reproducible build.
+\documentclass{article}
+\usepackage[preprint,nonatbib]{neurips_2026}
 \usepackage[T1]{fontenc}
-\usepackage{titlesec}
-\usepackage{abstract}
-
-\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
-\captionsetup{font=small, labelfont=bf}
-\titlespacing*{\section}{0pt}{10pt}{6pt}
-\titlespacing*{\subsection}{0pt}{8pt}{4pt}
-\renewcommand{\Authfont}{\normalsize}
-\renewcommand{\Affilfont}{\small\itshape}
-
-\title{\Large\bfseries CommerceCore: A Small, Self-Hosted Language Model for Ecommerce Query Constraint Extraction and Entity Segmentation}
-
-\author{Arghya Mukherjee}
-\affil{Independent Researcher \\ \texttt{arghya@lightnexus.ai}}
-\date{}
-
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,booktabs,tabularx,array}
+\usepackage{tikz,pgfplots}
+\usetikzlibrary{arrows.meta,positioning}
+\pgfplotsset{compat=1.18}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,
+ pdftitle={CommerceCore: Low-Budget Multitask Adaptation for Structured E-Commerce Queries},pdfauthor={Arghya Mukherjee}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\Fmacro}{\overline{F}_1}
+\input{evidence/numbers.tex}
+\title{CommerceCore: Low-Budget Multitask Adaptation\\for Structured E-Commerce Queries}
+\author{Arghya Mukherjee\\Independent Researcher\\\texttt{arghya@lightnexus.ai}}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Ecommerce search systems must convert free-text shopping queries into structured constraints that a catalog can act on. We show that a small, openly-licensed language model (Qwen3-1.7B), fine-tuned via QLoRA on a mixture of real human-annotated data and mechanically-validated synthetic data, matches or exceeds several frontier language models (Claude Haiku 4.5, Claude Sonnet 5, GPT-6-tier cheap and flagship variants) on this task, at a training cost under one dollar and a total project cost under ten dollars. On the public QueryNER entity-segmentation benchmark (993 held-out examples), our fine-tuned model achieves F1 = 0.498 (95\% CI: [0.475, 0.523], 10,000-resample bootstrap), compared to 0.204--0.427 for the frontier models we tested. On a held-out constraint-extraction set, our model achieves F1 = 0.683 across three verticals (fashion, grocery, general merchandise), compared to 0.504--0.618 for the same frontier baselines. We report these results alongside a second, independent evaluation on six deliberately harder queries (involving negation, unit conversion, and dense multi-constraint phrasing) on which our model does \emph{not} lead --- Claude Sonnet 5 (F1 = 0.493) and a cheap-tier GPT model (F1 = 0.428) both outperform our model (F1 = 0.400) in this harder regime. We further show that self-hosting is not automatically cheaper than a cheap API tier at low request volume: at our measured single-request throughput, self-hosted serving costs \$0.000116--\$0.000210 per query, versus \$0.000033 for a cheap-tier GPT baseline. We present these results not as weaknesses to conceal but as evidence that our headline claims are real but scope-limited, and we analyze the specific failure modes that a small amount of training data with narrow templated coverage produces. We disclose that a closely related approach was published concurrently with this work, and we position our contribution specifically: a multitask formulation combining constraint extraction and entity segmentation, trained on a mixture of real and mechanically-gated synthetic data, with an explicit and reproducible model-selection procedure based on measured retention against catastrophic forgetting. All code, data, training logs, and the trained model are publicly released.
+Structured shopping-query extraction requires both schema compliance and faithful interpretation of user constraints. We study CommerceCore, a 1.7-billion-parameter Qwen3 model adapted with QLoRA using 1,500 human-annotated QueryNER examples, 450 synthetic query examples, and 180 synthetic catalog examples. The recorded training run takes 75.2 minutes, corresponding to an estimated GPU charge of \$0.90 at the recorded hourly rate. The selected checkpoint has a recorded mean per-query entity-set F1 of 0.498 on 993 QueryNER examples and constraint-set F1 of 0.725 on 20 development queries. These scores require qualification: 30 QueryNER test examples informed checkpoint selection, and available API baselines use a different sample and an incomplete label vocabulary. An offline audit identifies 374 distinct synthetic queries and eight query groups with conflicting target sets. Reanalysis of six diagnostic predictions gives mean F1 of 0.400, micro-F1 of 0.381, and no exact-set matches, exposing failures in completeness, negation, and normalization. The evidence supports low-budget implementation feasibility, but does not establish superiority over general-purpose models or production reliability. We provide a traceable account of the implementation, distinguish recorded measurements from reproducible offline analyses, and identify the conditions required to test stronger claims.
 \end{abstract}
 
 \section{Introduction}
+Shopping queries combine product descriptions with constraints on attributes, price, and usage. A query such as ``black waterproof trainers under 80 pounds'' requires identifying a color, interpreting an attribute as Boolean, and mapping a price phrase to a catalog field. A syntactically valid JSON response can still omit a requirement or reverse its meaning. When search systems execute these constraints, such errors change the products a user sees.
 
-Ecommerce search boxes receive queries such as \emph{``black waterproof trainers under 80 pounds''} or \emph{``almonds with no added sugar.''} To act on such a query --- to filter a catalog, rank candidate products, or explain why a result was returned --- a system needs a structured representation of what the shopper actually specified: a set of (field, operator, value) constraints, or, at a lower level, a segmentation of the query into typed entity spans.
+A small generative model offers a practical interface: the same backbone can produce structured outputs for query segmentation, constraint extraction, and catalog attributes. Its usefulness depends on more than parameter count. Training targets must consistently cover what the input expresses, and evaluation must provide comparable evidence to every system. The central research question is therefore: \emph{under what conditions does task specialization provide an effective and economical model for structured commerce queries?}
 
-It is tempting to assume that a frontier large language model (LLM), given a reasonable prompt, solves this problem by default. We show this assumption does not hold reliably, and we argue the reasons are structural rather than incidental to prompt engineering:
+We investigate this question through CommerceCore, a Qwen3-1.7B model~\cite{qwen3,qwenmodel} adapted on real and synthetic examples. We examine three narrower questions supported by the available artifacts. \textbf{RQ1:} What resource use and task behavior are recorded for this adaptation? \textbf{RQ2:} Do the data and evaluation protocols support comparative accuracy claims? \textbf{RQ3:} What do checkpoint trajectories and saved predictions reveal about its limits? The broader effects of data composition, out-of-distribution robustness, and deployment configuration require additional controlled experiments.
 
-\begin{enumerate}
-\item \textbf{Task narrowness versus model breadth.} Frontier LLMs are trained and evaluated on broad distributions --- open-domain question answering, multi-step reasoning, code generation, dialogue. A narrow, repetitive schema-extraction task over an ecommerce-specific field vocabulary (e.g., \texttt{price\_gbp}, \texttt{contains\_added\_sugar}, \texttt{warranty\_months}) does not exercise the capabilities these models are optimized for.
-\item \textbf{Cost and latency at production scale.} A live, search-as-you-type interface requires sub-second response times on every keystroke, at a request volume that can reach millions of queries per day.
-\item \textbf{Data locality.} A self-hosted small model keeps customer search and purchase data inside the operator's own infrastructure, a concrete requirement in privacy-sensitive verticals.
-\end{enumerate}
+The recorded run demonstrates a small incremental training budget. However, auditing the artifacts changes the interpretation of its accuracy results: the constraint set was used throughout development, part of the QueryNER test set informed selection, and the available QueryNER API prompt names only two of 17 entity types. Mechanically accepted synthetic examples also contain conflicting targets. These issues affect the inference drawn from a score even when its arithmetic is correct.
 
-We test the ``frontier models solve this by default'' assumption directly rather than assuming it. On a held-out constraint-extraction set and on the public QueryNER benchmark, we measure four frontier systems and find F1 scores in the range 0.20--0.62. We then fine-tune a 1.7-billion-parameter open-weight model (Qwen3-1.7B, Apache-2.0 license) via quantized low-rank adaptation (QLoRA), and show that the fine-tuned model exceeds every tested frontier baseline on both evaluation sets, at a measured training cost of \$0.90 and a total project cost under ten dollars.
+Our contributions are: (1) an implementation-level account of three-task adaptation, including the data mixture, objective, checkpoint history, and resource use; (2) a reproducible audit of target consistency, query overlap, baseline label coverage, and selection exposure; and (3) case-level analysis of all six saved diagnostic predictions, including micro-F1 and exact-set accuracy. We use established adaptation methods and make no novel-architecture or state-of-the-art claim. The study connects a concrete low-budget implementation to the conclusions its evidence can support.
 
-Critically, we do not stop at the favorable result. We construct a second, independent evaluation set of six queries specifically designed to probe harder linguistic phenomena --- negation, non-standard unit conversion, and four-or-more-constraint compositionality. On this harder set, our model's advantage disappears: two of the four frontier baselines outperform it. We report this honestly and analyze the failure modes directly from model output.
+\section{Related Work}
+\paragraph{Commerce query understanding.}
+QueryNER provides human-annotated shopping queries with 17 entity types and evaluates supervised BERT and XLM-R taggers, including domain-adapted BERT~\cite{queryner}. These are relevant specialist baselines for a generative segmentation model. CommerceCore serializes label--text pairs as JSON; its per-query set metric is not interchangeable with token-indexed sequence-labeling evaluation. We make no leaderboard comparison against the original QueryNER results.
 
-Our contributions are:
+\paragraph{Small-model specialization.}
+Licardo and Tankovic~\cite{licardo2025} study QLoRA adaptation of a one-billion-parameter Llama 3.2 model for multilingual commerce intent recognition and deployment quantization. This is close prior art for the small-model specialization strategy. CommerceCore instead produces constraint and entity sets, includes human-annotated data, and examines label and evaluation integrity. Neither changing the backbone nor using synthetic data establishes methodological novelty.
 
-\begin{enumerate}
-\item A multitask fine-tuning approach that trains constraint extraction and entity segmentation jointly on a single small model, using a training mixture that combines real human-annotated data (QueryNER) with synthetic data generated under an explicit label-integrity constraint (\S\ref{sec:method}).
-\item A checkpoint-selection procedure that measures task performance and retention jointly at every evaluation point (\S\ref{sec:method}).
-\item An honest, two-part evaluation: a primary benchmark on which our model leads, and a secondary, harder benchmark on which it does not (\S\ref{sec:results}).
-\item A fully reproducible, publicly released artifact: model weights, training data, code, and complete logs (\S\ref{sec:repro}).
-\end{enumerate}
+\paragraph{Multitask adaptation.}
+EcomGPT~\cite{ecomgpt} studies commerce instruction tuning using EcomInstruct and a chain-of-task formulation. CommerceCore uses a much smaller mixture with plain task prefixes, without chain-of-task supervision. LoRA learns low-rank updates to frozen weights~\cite{lora}; QLoRA combines such updates with a quantized backbone~\cite{qlora}. We adopt this established recipe. The catalog task is auxiliary and lacks a separate evaluation, so we cannot attribute gains to sharing tasks rather than training specialists.
 
-We disclose in \S\ref{sec:related} that a closely related approach was published concurrently with the development of this work, and we position our specific contribution relative to it.
-
-\section{Background and Related Work}
-\label{sec:related}
-
-\subsection{Small Language Models for Domain Specialization}
-A growing body of work argues that task-specific fine-tuning of small language models can match or exceed general-purpose frontier models on narrow tasks. Closest to our work, Licardo and Tankovic \cite{licardo2025} fine-tune a 1-billion-parameter Llama 3.2 model via QLoRA on synthetically generated ecommerce intent-recognition data, reporting approximately 99\% accuracy. We adopt a broadly similar strategy but differ in task formulation (multi-field constraint extraction and entity segmentation, rather than single-label intent classification), base model, and training data composition (real \emph{and} synthetic data, rather than fully synthetic). We do not claim novelty for the general strategy of small-model-plus-QLoRA-plus-synthetic-data.
-
-\subsection{Multitask Ecommerce Language Models}
-Li et al.\ \cite{li2023ecomgpt} instruction-tune a large language model across multiple ecommerce subtasks via a chain-of-task formulation. Our work shares the multitask framing but operates at a substantially smaller parameter budget and narrower task scope; we do not perform an independent re-benchmark against this line of work.
-
-\subsection{Synthetic Data Quality for LLM Post-Training}
-A recognized challenge in LLM post-training is that synthetic data can be internally consistent while failing a real quality bar not captured by any single automated check. General frameworks such as CuratorKIT \cite{curatorkit2026} implement multiple complementary quality gates for this problem. We implement a narrower, task-specific instance: we find, by manual inspection, that 70\% of an early synthetic batch used a generic, repetitive query template despite passing every mechanical validation check we had implemented.
-
-\subsection{Catastrophic Forgetting in Fine-Tuning}
-Parameter-efficient fine-tuning methods such as LoRA do not, by construction, guarantee retention of a base model's general capabilities; empirical measurement is required. We measure retention directly at every checkpoint using a fixed set of task-unrelated probes.
-
-\section{Methodology}
+\section{CommerceCore: Tasks, Data, and Adaptation}
 \label{sec:method}
+\subsection{Output contracts and training mixture}
+For a query $x$, constraint extraction predicts $C(x)=\{(f_j,o_j,v_j)\}_{j=1}^{m}$, where $f_j$ is a schema field, $o_j$ a comparison operator, and $v_j$ a string-valued canonical value. Synthetic targets cover nine fields: color, material, size, waterproof status, added-sugar presence, nut presence, price in GBP, power source, and warranty duration in months. Boolean values are strings. Historical labels map ``under 80'' to \code{lte}; scoring follows that convention without claiming strict linguistic equivalence.
 
-\subsection{Task Definition and Dataset Composition}
-We define two tasks, trained jointly: \textbf{constraint extraction} (query $\rightarrow$ list of (field, operator, value) triples) and \textbf{entity segmentation} (query $\rightarrow$ labeled spans, following the QueryNER schema).
+Entity segmentation predicts $(\ell,s)$ pairs, with QueryNER label $\ell$ and span text $s$. Local records preserve tokens and half-open token offsets; training converts spans to space-joined text. Catalog extraction maps a listing to an attribute dictionary. Thus three tasks are trained, while only two have task-level evaluation artifacts.
 
-\begin{table}[h]
+\begin{table}[t]
 \centering
-\small
-\caption{Training data sources and provenance.}
+\caption{Mixture specified by the builder. Synthetic row counts are verified from the current files. The historical shuffled mixture itself was not archived locally.}
 \label{tab:data}
-\begin{tabular}{lrl}
+\begin{tabular}{llrr}
 \toprule
-Source & N & License \\
+Task & Source & Rows & Share \\
 \midrule
-QueryNER (sampled) & 1{,}500 & CC BY 4.0 \\
-Synthetic query-constraint & 450 & Generated \\
-Synthetic catalog-attribute & 180 & Generated \\
+Entity segmentation & QueryNER, human annotated & 1,500 & 70.4\% \\
+Query constraints & Synthetic, 150 per vertical & 450 & 21.1\% \\
+Catalog attributes & Synthetic, 60 per vertical & 180 & 8.5\% \\
+\midrule
+Total & & 2,130 & 100.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-For synthetic query-constraint examples, we use a \textbf{structured-scenario-first} procedure: we (1) deterministically sample a product scenario and fixed constraint labels in code, with no LLM involvement, then (2) issue a single LLM call whose only task is to paraphrase the fixed scenario into natural language, never to decide what the constraints are. A downstream mechanical validator confirms each constraint's value is a literal substring of the paraphrase; unmatched constraints are dropped rather than retained with a fabricated evidence span.
+The QueryNER builder shuffles 7,841 local training records with seed 42 and selects 1,500 (Table~\ref{tab:data}). The local test file contains 993 records. Both identify source revision \path{f2f9173d14243496dbcf017a9dc2ded74989a45e}. We report counts from these files rather than assuming all published versions have identical counts. The dataset card declares CC BY 4.0~\cite{querynerdata}, and local provenance identifies Amazon ESCI as the source of the underlying queries. An offline audit finds no normalized exact query overlap between the local train and test files; this does not exclude paraphrase overlap or pretraining contamination.
 
-\subsubsection{Data Quality Gates}
-We implement four mechanical checks: (1) \emph{schema validity}, (2) \emph{source-span binding}, (3) \emph{execution correctness} against a synthetic catalog simulator, and (4) \emph{naturalness} --- a check added after finding, by manual inspection, that 313 of 450 examples (69.6\%) in an early batch used a generic ``products with X'' template despite passing checks (1)--(3). We regenerated the training data after adding this check.
+\subsection{Synthetic generation and validation}
+The query generator samples a structured scenario in code and asks an API model, identified as \code{claude-sonnet-4-5}, to render it as a shopping query. Query and catalog data cover fashion, grocery, and general merchandise equally. Generated targets constitute weak supervision, not new human annotation.
 
-\subsection{Models and Baselines}
-\textbf{Fine-tuned model:} Qwen3-1.7B (Apache-2.0), QLoRA with 4-bit NF4 double quantization, bfloat16 compute, LoRA rank 16, alpha 32, dropout 0.05. \textbf{Frontier baselines}, cheap and flagship tier, few-shot prompted: Claude Haiku 4.5, Claude Sonnet 5, a cheap-tier GPT model, and a flagship reasoning GPT model. \textbf{Open-weight baselines} (unfine-tuned): Qwen3.5-2B and SmolLM3-3B \cite{smollm3}, both Apache-2.0.
+The query path constructs an intermediate contract by finding literal value substrings or predefined Boolean surface forms, omitting constraints with no match. A validator checks schema structure, span binding, and a blocklist of generic phrases. Although the validator supports simulated execution, the scaled query-generation call supplies neither tool calls nor a catalog; execution correctness is not checked on that path.
+
+The writer then serializes the \emph{original scenario constraints}, rather than the filtered contract that passed validation (Figure~\ref{fig:pipeline}). Acceptance of that contract therefore does not guarantee grounding of every saved target. Substring binding also cannot prove completeness or semantic fidelity. For example, finding an attribute word does not by itself resolve whether it is negated.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{architecture_diagram.png}
-\caption{CommerceCore training and serving pipeline: data sources, mechanical quality gates, QLoRA fine-tuning with per-checkpoint evaluation, evidence-based checkpoint selection, and public release.}
+\begin{tikzpicture}[node distance=4mm,>=Latex,
+ box/.style={draw=black!60,rounded corners=2pt,align=center,font=\small,text width=11.7cm,inner sep=4pt}]
+\node[box] (scenario) {Programmatic scenario $\rightarrow$ API paraphrase $\rightarrow$ query text};
+\node[box,below=of scenario] (validate) {Filtered contract: schema, evidence-span, and generic-phrase checks};
+\node[box,below=of validate,fill=black!5] (save) {Saved completion uses original scenario labels\\Validation does not cover every saved label};
+\node[box,below=of save] (mix) {Mix with QueryNER and catalog examples $\rightarrow$ QLoRA $\rightarrow$ checkpoint diagnostics};
+\draw[->] (scenario)--(validate);
+\draw[->] (validate)--node[right,font=\scriptsize]{accept}(save);
+\draw[->] (save)--(mix);
+\end{tikzpicture}
+\caption{The implemented query-data path. The discrepancy between the validated contract and the saved target is an observed implementation property.}
 \label{fig:pipeline}
 \end{figure}
 
-\subsection{Experimental Pipeline}
-\textbf{Fine-tuning.} Training ran 1,200 optimizer steps (microbatch 1, gradient accumulation 8, $\approx$4.5 epochs over 2,130 examples) on one RunPod RTX PRO 4500 GPU (32GB). Peak VRAM: 2.13GB. Total time: 75.2 minutes; cost: \$0.90.
+\subsection{Training configuration}
+The base is Qwen3-1.7B, distributed under Apache 2.0~\cite{qwenmodel}. Training uses 4-bit NF4 with double quantization and bfloat16 computation; LoRA rank 16, alpha 32, and dropout 0.05; and adapters on the attention query/key/value/output and feed-forward gate/up/down projections. Gradient checkpointing is enabled. For prompt $p_i$ and completion $y_i$, training minimizes completion-token negative log likelihood:
+\begin{equation}
+\mathcal{L}(\theta)=-\sum_i\sum_{t\in y_i}\log p_\theta(y_{i,t}\mid p_i,y_{i,<t}).
+\end{equation}
+Prompt tokens are masked, an end-of-sequence token is appended, and the concatenated sequence is truncated to 512 tokens. AdamW uses learning rate $10^{-4}$, microbatch one, and eight accumulation steps. The once-shuffled mixture is cycled sequentially without task reweighting or epoch reshuffling. The training seed is 42. There are 1,200 optimizer steps, with evaluation every 150 steps, corresponding to approximately 4.51 passes through 2,130 rows. The selected step 750 represents 2.82 passes. Checkpoint task decoding is greedy with 100 new tokens, plain prefixes, and no constrained JSON decoder.
 
-We checkpoint every 150 steps, evaluating: (a) constraint-extraction F1, (b) QueryNER F1, and (c) retention --- mean token-overlap similarity between the current checkpoint's output and the frozen base model's output on 5 fixed, task-unrelated probes.
+\section{Experimental Setup and Evidence Audit}
+\label{sec:protocol}
+\subsection{Metrics and parsing}
+Historical scores are means of \emph{per-query exact-set F1}, not label-macro-F1. For predicted set $P_i$ and gold set $G_i$,
+\begin{equation}
+ F_{1,i}=\frac{2|P_i\cap G_i|}{|P_i|+|G_i|},\qquad
+ \Fmacro=\frac{1}{n}\sum_{i=1}^n F_{1,i}.
+\end{equation}
+Two empty sets score one. Constraints match exact field/operator strings and stringified values. Entity matching uses the exact label and lowercased, stripped span text; token offsets are discarded. Set conversion removes duplicates, so repeated identical predictions are not penalized and identical span text at different positions is indistinguishable.
 
-\textbf{Checkpoint selection.} We observed retention scores of 0.597, 0.611, 0.597, 0.592, 0.614, 0.490, 0.518, and 0.489 at checkpoints 150--1,200. Retention declines measurably over the final three checkpoints without recovering, while task F1 improves only marginally. We select checkpoint 750 (constraint F1 0.725, QueryNER F1 0.556, retention 0.614) over the final checkpoint 1,200 (constraint F1 0.740, QueryNER F1 0.530, retention 0.489).
+The parser extracts a JSON list with a regular expression; missing or invalid JSON becomes an empty list. This conflates parse failure with a valid empty prediction. One of the 20 constraint development queries has empty gold, giving an always-empty system mean F1 of 0.050. For the six saved diagnostic predictions, we additionally compute pooled precision, recall, micro-F1, and exact-set accuracy $n^{-1}\sum_i\mathbf{1}[P_i=G_i]$.
 
-\subsection{Evaluation Framework}
-We evaluate on the full QueryNER test set (993 examples, CC BY 4.0), reporting a 95\% CI via 10,000-resample bootstrap, and a held-out constraint-extraction set (20 examples, tagged by vertical). We additionally construct a secondary, adversarially-harder set of six queries (negation, unit conversion, 4+ constraint compositionality), reported separately.
+\subsection{Data splits and selection exposure}
+The 20 author-written constraint queries comprise seven fashion, seven grocery, and six general-merchandise examples. Despite the filename \code{held\_out\_eval\_set.jsonl}, all 20 are evaluated at every checkpoint. We therefore treat them as \emph{development data}. Their normalized query strings do not exactly match the synthetic training file, but they are not an untouched final evaluation.
 
-\section{Results}
+The training script likewise evaluates the first 30 QueryNER test records at each checkpoint. The later 993-example score includes these records and is selection-exposed. Full-test per-example predictions are absent, preventing rescoring on the remaining 963 records or a paired comparison. Retrospective removal would also not recreate a prospectively frozen evaluation.
+
+Six additional author-written queries provide diagnostics for composition, negation, permissive language, and unit/vocabulary normalization. Their strings do not exactly match the current synthetic file or development set. They remain a small convenience sample with schema-specific, sometimes incomplete gold labels; they are not a representative out-of-distribution benchmark.
+
+\subsection{Baseline comparability}
+The QueryNER API script evaluates the \emph{first 50} test examples and requests only \code{core\_product\_type} or \code{modifier}. On that sample, 52 of 119 annotated spans have other labels. Let $k_i$ denote the number of gold label--text pairs allowed by the prompt and $g_i$ the total number of gold pairs. A perfect predictor restricted to the allowed labels obtains
+\begin{equation}
+ F^{\mathrm{restricted}}_{1,i}=\frac{2k_i}{k_i+g_i}.
+\end{equation}
+The optimal prediction includes every permitted gold pair and no incorrect pair, since incorrect additions increase only the denominator. Averaging this bound over the 50 examples gives \RestrictedPromptCeiling{}. This is a prompt-compliance ceiling, not a bound on a model that ignores the instruction. Different samples and label vocabularies preclude interpreting the available scores as evidence of CommerceCore's superiority.
+
+The constraint API scripts use two demonstrations but do not specify the full field vocabulary. Historical IDs are \code{claude-haiku-4-5-20251001}, \code{claude-sonnet-5}, \code{gpt-4o-mini}, and \code{gpt-5}; these are recorded identifiers, not claims about current availability or provider tiers. Their numerical aggregates are preserved in Appendix~\ref{app:baselines}. Per-request metadata and raw generations are incomplete.
+
+The open-model script uses Qwen3.5-2B and SmolLM3-3B with plain text prompts and 150 new tokens, without model-specific chat templates or explicit reasoning-mode settings. Both have empty parsed predictions on all six diagnostic queries. Without raw generations, empty answers cannot be distinguished from truncation or parser failure. These comparisons do not isolate fine-tuning or scale.
+
+\subsection{Uncertainty and provenance}
+The full QueryNER file records mean F1 0.498474 and a 10,000-resample percentile interval [0.474948, 0.522320]. We retain this as a \emph{recorded interval}, since its score vector is absent. It describes query resampling under the implemented metric, not training-seed variation, selection bias, or prompt uncertainty. The repeated constraint-baseline script instead bootstraps 60 entries from three calls on 20 queries. Those entries are not independent queries; valid query-level inference would cluster repeats and preferably estimate paired differences. We therefore do not use its pooled intervals for comparative inference or infer population uncertainty from six deliberately chosen examples.
+
+\section{Results and Analysis}
 \label{sec:results}
+\subsection{Task performance and training-target consistency}
+Table~\ref{tab:results} reports the supported task results. ``Recorded'' denotes an available aggregate; ``recomputed'' denotes rescoring saved predictions. The full-file QueryNER result is lower than the 30-example selection-subset score, but different example populations and evaluation stages prevent attributing the gap to one cause. The 20-query score is developmental and cannot certify final generalization.
 
-\subsection{Primary Benchmark: QueryNER (Full Test Set)}
-\begin{table}[h]
+\begin{table}[t]
 \centering
-\small
-\caption{Entity segmentation F1, full 993-example QueryNER test set.}
-\begin{tabular}{lr}
+\caption{CommerceCore results and evidence scope. These evaluations use different example populations and do not constitute interchangeable test estimates.}
+\label{tab:results}
+\begin{tabular}{lrrl}
 \toprule
-System & F1 \\
+Evaluation & $n$ & $\Fmacro$ & Evidence \\
 \midrule
-GPT flagship (reasoning) & 0.204 \\
-Claude Haiku 4.5 & 0.263 \\
-GPT cheap tier & 0.294 \\
-Claude Sonnet 5 & 0.427 \\
-\textbf{CommerceCore (ours)} & \textbf{0.498} [0.475, 0.523] \\
+Constraint development, step 750 & 20 & 0.725 & Recorded checkpoint aggregate \\
+QueryNER selection subset, step 750 & 30 & 0.556 & Recorded checkpoint aggregate \\
+QueryNER full local test file & 993 & 0.498 & Recorded final aggregate \\
+Additional diagnostic queries & 6 & 0.400 & Recomputed from predictions \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Our model exceeds every tested frontier configuration, with a 95\% CI that does not overlap the next-best baseline.
+The offline audit finds \SyntheticUniqueN{} distinct normalized queries in 450 synthetic rows, with \SyntheticDuplicateN{} repeated rows beyond the first occurrence. Eight query groups, containing 20 rows, have conflicting target \emph{sets}; list-order differences are ignored. For example, ``black waterproof windbreaker size S'' is paired with color alone in one row and color plus waterproof status in another. The prompt supplies no scenario identifier that could distinguish these targets. Target lengths are one constraint in 192 rows, two in 238, and three in 20; none contains four. No current query row matches the generic-phrase blocklist. This verifies phrase removal, not linguistic naturalness or semantic fidelity. Historical labels are preserved so that edits do not silently sever their connection to the recorded model.
 
-\subsection{Primary Benchmark: Constraint Extraction}
-\begin{table}[h]
+\subsection{Checkpoint selection and behavioral drift}
+At each checkpoint, the model answers five fixed prompts about a capital city, weather, arithmetic, a primary color, and a sentence completion. Let $A$ and $B$ be sets of lowercased whitespace-delimited output tokens from the checkpoint and frozen base. The diagnostic averages
+\begin{equation}
+S(A,B)=\frac{|A\cap B|}{\max(|A|,|B|)},
+\end{equation}
+with one for two empty sets and zero if only one is empty. It measures lexical agreement: a correct paraphrase can lower it, while a shared wrong answer can raise it. It is not a validated measure of retained general capability.
+
+\begin{figure}[t]
 \centering
-\small
-\caption{Constraint-extraction F1, held-out set (20 examples).}
-\begin{tabular}{lr}
+\begin{tikzpicture}
+\begin{axis}[width=0.95\linewidth,height=5.2cm,xlabel={Optimizer step},ylabel={Logged score},
+ xmin=120,xmax=1230,ymin=0.45,ymax=0.79,xtick={150,300,450,600,750,900,1050,1200},ytick={0.5,0.6,0.7},
+ tick label style={font=\small},label style={font=\small},
+ legend style={font=\small,at={(0.5,1.03)},anchor=south,draw=none,legend columns=1},grid=major,grid style={black!10}]
+\addplot[blue!70!black,mark=*,thick] table[x=step,y=constraint_f1,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{Constraint F1 ($n=20$)}
+\addplot[orange!80!black,mark=square*,thick] table[x=step,y=queryner_f1,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{QueryNER F1 ($n=30$)}
+\addplot[black!65,mark=triangle*,dashed,thick] table[x=step,y=output_similarity,col sep=comma]{evidence/checkpoint_history.csv};
+\addlegendentry{Base-output similarity (5 probes)}
+\draw[dotted,black] (axis cs:750,0.45)--(axis cs:750,0.79);
+\end{axis}
+\end{tikzpicture}
+\caption{All eight recorded checkpoints. The dotted line marks selected step 750. Similarity and extraction F1 are different quantities despite sharing a plotting scale.}
+\label{fig:checkpoints}
+\end{figure}
+
+The historical selection note chooses step 750, where output similarity is highest (0.6143), constraint F1 is 0.7250, and QueryNER subset F1 is 0.5562. At step 1,200 these are 0.4886, 0.7400, and 0.5298. Step 600 maximizes QueryNER subset F1 and step 1,050 maximizes constraint F1 (Figure~\ref{fig:checkpoints}). Pareto analysis over all three logged signals retains steps 150, 300, 600, 750, 900, and 1,050. Step 750 is one nondominated choice, not a uniquely optimal checkpoint. It was selected after observing the trajectories, without a prespecified scalar objective or threshold. The later similarity decline establishes output drift on these probes, not catastrophic forgetting or a causal effect of overtraining.
+
+\subsection{Diagnostic errors}
+The six saved predictions contain nine predicted triples and twelve gold triples, with four matches. Pooled precision is 0.444, recall is 0.333, and micro-F1 is \FreshMicroF{}. Mean per-query F1 is 0.400, but exact-set accuracy is 0/6. Partial overlap therefore coexists with an incorrect constraint set on every example. Table~\ref{tab:errors} reports every case, including the distinction between permitting sugar and requiring its presence, and errors in field, operator, and unit normalization.
+
+\begin{table}[t]
+\centering\small
+\caption{All six CommerceCore diagnostic cases. Prediction fields are abbreviated here; rescoring uses the exact stored triples.}
+\label{tab:errors}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.31\linewidth}>{\raggedright\arraybackslash}p{0.25\linewidth}r>{\raggedright\arraybackslash}X@{}}
 \toprule
-System & F1 \\
+Query & Saved prediction & F1 & Observation \\
 \midrule
-GPT flagship (reasoning) & 0.504 \\
-Claude Haiku 4.5 & 0.518 \\
-Claude Sonnet 5 & 0.592 \\
-GPT cheap tier & 0.618 \\
-\textbf{CommerceCore (ours)} & \textbf{0.683} \\
+ green cotton hoodie size L under 40 pounds & price $\leq40$ & 0.400 & Omits color, material, size. \\
+ waterproof boots not black & waterproof = true; color = ``not black'' & 0.667 & Literalized negation; gold omits negative color. \\
+ protein bar no nuts please, sugar is fine & nuts = false; added sugar = true & 0.667 & Turns permission into a requirement. \\
+ vegan chocolate with no added sugar under 5 pounds & price $\leq5$ & 0.667 & Omits no-added-sugar; vegan absent from gold. \\
+ portable speaker under 3 year warranty running on batteries & warranty $\geq3$ months; price $\leq3$ & 0.000 & Field/operator/unit errors; missing power. \\
+ wall powered toaster at least 18 months guarantee & power source = ``wall'' & 0.000 & Noncanonical value; missing warranty. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Per-vertical: fashion 0.690, grocery 0.667, general 0.694.
+Gold-label scope also limits interpretation. The boots example has only a waterproof target, omitting the negative color condition even though the broader schema supports \code{neq}. ``Vegan'' is absent from both the chocolate target and the empty development oat-milk target. Scores measure agreement with these restricted annotations, not complete shopping-query understanding. These cases illustrate errors but cannot establish their prevalence.
 
-\subsection{Open-Weight Model Comparison}
-\begin{table}[h]
-\centering
-\small
-\caption{Unfine-tuned open-weight models, few-shot.}
-\begin{tabular}{lrrr}
-\toprule
-Model & Params & F1 (held) & F1 (\S\ref{sec:secondary}) \\
-\midrule
-Qwen3.5-2B & 2B & 0.05 & 0.00 \\
-SmolLM3-3B & 3B & 0.10 & 0.00 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Efficiency, Limitations, and Implications}
+\label{sec:limits}
+\paragraph{Recorded compute and cost.}
+The run summary records 4,510.6 seconds (75.18 minutes); at the encoded historical rate of \$0.72 per GPU hour, the estimated charge is \$0.9021. The timer includes periodic evaluation and checkpointing but excludes earlier loading and base-probe generation. Peak \code{torch.cuda.max\_memory\_allocated} is recorded as 2.13 GiB, which excludes reserved and non-PyTorch device memory. It is not a minimum hardware requirement. The project identifies an RTX PRO 4500 with 32 GB; the summary does not embed a hardware trace.
 
-Both are larger than our 1.7B model and score far below it, indicating the gain is attributable to fine-tuning, not scale.
+The cumulative generation ledger records 1,630 calls and an estimated \$\LedgerCost{} at its encoded token prices. This is generation history, not a complete project budget. Evaluation APIs, startup, idle time, storage, and engineering effort are not fully reconciled. No sustained-load serving trace is available for independently auditing latency percentiles or throughput. For hourly rate $r$, sustained throughput $q$, and utilization $u$, compute-only cost per query is $r/(u q)$. Batching capacity and utilization cannot be inferred from a few request timings; no measured superiority in serving economics is claimed.
 
-\subsection{Secondary Evaluation: Adversarially-Constructed Queries}
-\label{sec:secondary}
-\begin{table}[h]
-\centering
-\small
-\caption{F1 on six deliberately harder, independent queries.}
-\begin{tabular}{lr}
-\toprule
-System & F1 \\
-\midrule
-GPT flagship (reasoning) & 0.167 \\
-Qwen3.5-2B (unfine-tuned) & 0.000 \\
-SmolLM3-3B (unfine-tuned) & 0.000 \\
-Claude Haiku 4.5 & 0.298 \\
-\textbf{CommerceCore (ours)} & 0.400 \\
-GPT cheap tier & 0.428 \\
-Claude Sonnet 5 & 0.493 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\paragraph{Causal and comparative limitations.}
+The run supports implementation feasibility (RQ1). It lacks a matched unfine-tuned Qwen3-1.7B evaluation, supervised encoder baseline, deterministic baseline, and controlled single-task or data-source ablations. The existing comparisons do not establish superiority (RQ2), and the three synthetic verticals are not independent merchant populations. Only one training seed is available. Neither the contribution of catalog supervision nor positive task transfer is measured.
 
-On this harder set, our model does not lead. Direct inspection identifies three failure patterns: (1) \textbf{multi-constraint recall degradation} on 4+-constraint queries; (2) \textbf{unit/vocabulary normalization failure} (e.g. ``3 year'' not converted to 36 months); (3) \textbf{negation mishandling} (e.g. ``not black'' kept as a literal value).
+\paragraph{Supervision and robustness.}
+The writer/validator discrepancy and conflicting targets show that scenario-first generation alone does not ensure faithful labels. Incomplete predictions are consistent with incomplete supervision, but a causal test requires retraining on repaired data under a matched protocol. The catalog targets also need their own fidelity audit. Five output-similarity probes and six diagnostic queries identify behaviors (RQ3), not general-capability retention or population robustness. A confirmatory design is specified in Appendix~\ref{app:future}; its experiments are not reported as completed.
 
-\section{Discussion}
-
-\subsection{A Small Model Can Beat Frontier Models, Within a Bounded Regime}
-Our primary result is consistent with, and independently reproduces at a different task, a finding also reported concurrently \cite{licardo2025}. We consider the explicit characterization of the \emph{boundary} of this result (\S\ref{sec:secondary}) more informative than the headline comparison alone.
-
-\subsection{Serving Cost: Not Automatically Cheaper Than a Cheap API Tier}
-At our measured throughput (3,429--6,207 queries/hour on one GPU), self-hosted serving costs \$0.000116--\$0.000210 per query. For a representative request (100 in / 30 out tokens), frontier costs range from \$0.000033 (GPT cheap tier) to \$0.000950 (GPT-5 flagship). We disclose that an earlier draft of this analysis incorrectly concluded self-hosting was cheaper; we caught and corrected this. Self-hosting overtakes GPT's cheap tier on cost only past $\approx$21{,}800 queries/hour --- achievable via batching, which we did not measure. The accurate case for self-hosting is data locality and higher accuracy than the cheap-tier baseline, not raw cost at low volume.
-
-\subsection{Retention Measurement Changes Model Selection}
-Selecting the final checkpoint by default would have released a model with measurably worse retention (0.489 vs.\ 0.614) for only a marginal task-metric gain.
-
-\subsection{Synthetic Data Passing Mechanical Checks Is Not Sufficient}
-69.6\% of an early synthetic batch failed a real quality bar that no automated check we had implemented would have caught.
-
-\subsection{Limitations}
-(1) \textbf{Scale}: 2,130 training examples and a 20-example primary held-out set are small. (2) \textbf{Task scope}: only 2 of 4 originally-scoped tasks are fully evaluated. (3) \textbf{Novelty scope}: the general small-model-QLoRA-synthetic-data strategy is not novel to this work. (4) \textbf{Baseline coverage}: two providers, two tiers each, tested. (5) \textbf{Single-run training}: no multi-seed averaging.
+\paragraph{Practical use and broader impact.}
+The service is a research interface. Valid JSON can contain unsupported or conflicting constraints, and empty lists can mask parsing failures. Execution should distinguish those states and preserve user intent, particularly for dietary or allergen requirements that these results cannot certify. English queries and narrow synthetic schemas limit representativeness. Self-hosting can provide architectural control over data flow, but no privacy guarantee or security audit is established here. Dataset attribution and underlying query provenance should accompany redistribution; synthetic labels should remain distinguishable from human annotation.
 
 \section{Reproducibility}
 \label{sec:repro}
-We release model weights (\href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b}{Hugging Face}), source code (\href{https://github.com/arghya05/commercecore}{GitHub}), training data including the QueryNER subsample and both synthetic datasets, full per-step training logs, and full evaluation scripts. Total measured cost for the complete study was under \$10.
+Source code is available at \href{https://github.com/arghya05/commercecore}{github.com/arghya05/commercecore}. The repository identifies a model release at \href{https://huggingface.co/arghya2030/commercecore-qwen3-1.7b}{arghya2030/commercecore-qwen3-1.7b}; this audit does not independently certify hosted weights or correspondence to every historical run.
+
+The standard-library script \code{paper/audit\_evidence.py} recounts rows, reconstructs the seed-42 sample, checks exact overlaps and conflicting target sets, computes the restricted-label ceiling, rescores saved predictions, and regenerates checkpoint data. It saves machine-readable results, reconstructed sample IDs, and SHA-256 hashes. The manuscript reads audit counts and figure data directly from those outputs. These offline checks are distinct from inference reproduction: full-test per-example generations, the historical mixed training file, and a complete pinned training environment are absent, and several original scripts retain pod-specific paths. Appendix~\ref{app:provenance} maps each result to its evidence.
 
 \section{Conclusion}
-We show that a small, openly-licensed language model, fine-tuned at a cost of under one dollar, can exceed several frontier language models on two narrow ecommerce tasks, evaluated on a real public benchmark and a held-out set. We report this alongside its explicit boundary, an honest serving-cost analysis with a self-caught correction, and a fully reproducible artifact.
+CommerceCore is a concrete case study of low-budget multitask adaptation for structured shopping queries. Its recorded run supports implementation feasibility, while saved predictions expose semantic errors despite partial set overlap. Auditing the artifacts identifies conflicting synthetic targets, test examples used for checkpoint selection, and an incomplete baseline label vocabulary. These findings constrain the claims supported by the current scores and provide executable checks for future studies. Strong comparative conclusions require consistent supervision, matched baselines, and an independent final evaluation.
 
-\section*{Acknowledgments}
-We used Claude (Anthropic) and GPT (OpenAI) models both as evaluation baselines and, in a separate and disclosed role, to assist in synthetic training data generation and manuscript preparation.
+\begin{ack}
+The project used Anthropic and OpenAI models for API comparisons and AI assistance. Synthetic query generation names an Anthropic model in its script. AI assistance was used in manuscript preparation and artifact review. This disclosure does not substitute for verification of labels, measurements, or citations. No complete funding or expenditure record is established by the local artifacts.
+\end{ack}
 
 \begin{thebibliography}{9}
-
-\bibitem{licardo2025}
-J. T. Licardo and N. Tankovic, ``Performance Trade-offs of Optimizing Small Language Models for E-Commerce,'' \emph{arXiv preprint arXiv:2510.21970}, 2025.
-
-\bibitem{li2023ecomgpt}
-Y. Li, S. Ma, X. Wang, S. Huang, C. Jiang, H.-T. Zheng, P. Xie, F. Huang, and Y. Jiang, ``EcomGPT: Instruction-tuning Large Language Models with Chain-of-Task Tasks for E-commerce,'' \emph{arXiv preprint arXiv:2308.06966}, 2023.
-
-\bibitem{curatorkit2026}
-``CuratorKIT: Data Curation and Synthetic Data Generation for LLM Post-Training,'' \emph{arXiv preprint arXiv:2606.21631}, 2026.
-
-\bibitem{palenmichel2024}
-C. Palen-Michel, L. Liang, Z. Wu, and C. Lignos, ``QueryNER: Segmentation of E-commerce Queries,'' in \emph{Proc.\ LREC-COLING 2024}, arXiv:2405.09507.
-
-\bibitem{qwen3}
-Qwen Team, Alibaba Group, ``Qwen3 Technical Report,'' \emph{arXiv preprint arXiv:2505.09388}, 2025.
-
-\bibitem{esci}
-Amazon Science, ``Shopping Queries Dataset (ESCI): A Large-Scale Dataset for Improving Search Relevance in E-commerce,'' 2022.
-
-\bibitem{smollm3}
-Hugging Face TB Research, ``SmolLM3: A Long-Context, Multilingual, Reasoning Small Language Model,'' 2025.
-
+\bibitem{queryner} Chester Palen-Michel, Lizzie Liang, Zhe Wu, and Constantine Lignos. 2024. \href{https://aclanthology.org/2024.lrec-main.1178/}{QueryNER: Segmentation of E-commerce Queries}. In \emph{Proceedings of LREC-COLING}, pp. 13455--13470.
+\bibitem{licardo2025} Josip Tomo Licardo and Nikola Tankovic. 2025. \href{https://arxiv.org/abs/2510.21970}{Performance Trade-offs of Optimizing Small Language Models for E-Commerce}. arXiv:2510.21970.
+\bibitem{ecomgpt} Yangning Li, Shirong Ma, Xiaobin Wang, Shen Huang, Chengyue Jiang, Hai-Tao Zheng, Pengjun Xie, Fei Huang, and Yong Jiang. 2023. \href{https://arxiv.org/abs/2308.06966}{EcomGPT: Instruction-tuning Large Language Models with Chain-of-Task Tasks for E-commerce}. arXiv:2308.06966.
+\bibitem{lora} Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. \href{https://arxiv.org/abs/2106.09685}{LoRA: Low-Rank Adaptation of Large Language Models}. In \emph{International Conference on Learning Representations}.
+\bibitem{qlora} Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. 2023. \href{https://arxiv.org/abs/2305.14314}{QLoRA: Efficient Finetuning of Quantized LLMs}. In \emph{Advances in Neural Information Processing Systems}, vol. 36.
+\bibitem{qwen3} Qwen Team. 2025. \href{https://arxiv.org/abs/2505.09388}{Qwen3 Technical Report}. arXiv:2505.09388.
+\bibitem{qwenmodel} Qwen Team. 2025. \href{https://huggingface.co/Qwen/Qwen3-1.7B}{Qwen3-1.7B model card}. Hugging Face. Accessed September 27, 2026.
+\bibitem{querynerdata} Broadening Linguistic Technologies Lab. 2024. \href{https://huggingface.co/datasets/bltlab/queryner}{QueryNER dataset card}. Hugging Face. Local source revision identified in Section~\ref{sec:method}.
 \end{thebibliography}
 
+\clearpage
+\appendix
+\input{appendices.tex}
+\ifdefined\IncludeNeurIPSChecklist
+\clearpage
+\input{checklist.tex}
+\fi
 \end{document}

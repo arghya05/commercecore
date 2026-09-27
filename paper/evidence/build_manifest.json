@@ -1,0 +1,17 @@
+{
+  "compiler": "Tectonic 0.17.0",
+  "mode": "public preprint; default build excludes optional conference checklist",
+  "top_level_tex": "commercecore_paper.tex",
+  "source_files_sha256": {
+    "commercecore_paper.tex": "f01ad36eaa7ef9a8e2a1f9f8dcdab3a47adf183e49f5b1620d1dabe02f7e056e",
+    "appendices.tex": "8d287cf6575dd32eb1c23e694a2a687fa6e86a726ce0dd5707e08038896f6cab",
+    "neurips_2026.sty": "c3fc2894e83d2517ca18b66741d6c595986d97957dc08ec08bb2125a7ec4555a",
+    "evidence/numbers.tex": "25f449fd7a7a455890f0bf3c9a04b7997ab73ff7b65b65d819bc66e31b7a3c51",
+    "evidence/checkpoint_history.csv": "47d59476243e6f2c3916ba77feb14ac0aeefe082b9a35b051883939b72bd26ef",
+    "checklist.tex": "dc2f14c5c8d0bc739ac86ad33e0d4fd05f3c48f30317a50f28171aa672411c99"
+  },
+  "public_pdf_sha256": "d5adc3dca5d59ae8e05c3f0bf001753ce34bd1c42f3706e14e8723f54c18d58c",
+  "source_zip_sha256": "2f9be8156c282236970e256d60f9a0033feba4e621890345049e698d81eff696",
+  "validation": "Compiled successfully; no undefined citations/references, missing glyphs, or overfull boxes in final log",
+  "boundary": "Local Tectonic compilation; arXiv server compilation and moderation have not been performed"
+}
