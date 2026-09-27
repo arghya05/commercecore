@@ -1,5 +1,7 @@
 # CommerceCore
 
+Author: [Arghya Mukherjee](https://orcid.org/0009-0008-3423-8574) · [arghya05@gmail.com](mailto:arghya05@gmail.com) · ORCID: 0009-0008-3423-8574
+
 CommerceCore is a Qwen3-1.7B research prototype for structured shopping-query extraction. It combines human-annotated QueryNER data with synthetic query and catalog supervision using QLoRA.
 
 **The revised paper reports implementation feasibility and an evidence audit. Existing comparisons do not establish superiority over frontier models or specialized encoders.** The audit found incomplete baseline label instructions, evaluation examples used for checkpoint selection, and inconsistent synthetic targets. Earlier broad claims in this repository are superseded by the revised manuscript.

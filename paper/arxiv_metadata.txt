@@ -1,6 +1,7 @@
 Title: CommerceCore: Low-Budget Multitask Adaptation for Structured E-Commerce Queries
 Authors: Arghya Mukherjee
 Author contact email: arghya05@gmail.com
+Author ORCID: https://orcid.org/0009-0008-3423-8574
 Suggested primary category: cs.IR
 Suggested cross-list: cs.CL
 Comments: Research preprint; code, data, and model-release information available in the CommerceCore repository.

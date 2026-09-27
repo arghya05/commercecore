@@ -1,5 +1,7 @@
 # CommerceCore paper
 
+Author: [Arghya Mukherjee](https://orcid.org/0009-0008-3423-8574) · [arghya05@gmail.com](mailto:arghya05@gmail.com) · ORCID: 0009-0008-3423-8574
+
 This folder contains the revised **research paper**, its complete LaTeX source, and the evidence audit. The PDF is a public preprint. It is not an accepted conference paper and has not been submitted to arXiv by this workflow.
 
 - [Research paper PDF](CommerceCore_Paper.pdf)
