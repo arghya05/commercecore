@@ -2,7 +2,8 @@
 
 A small (1.7B parameter), self-hostable model that parses natural-language shopping queries into structured constraints — trained for under $10 in total compute + API cost. Beats every tested frontier model on the primary held-out benchmarks; an honest, independent fresh-query test below shows this advantage does not hold universally — read that section before relying on any headline number.
 
-**Model weights + model card (download here): https://huggingface.co/arghya2030/commercecore-qwen3-1.7b**
+**Model weights + model card:** https://huggingface.co/arghya2030/commercecore-qwen3-1.7b
+**Source code + docs:** https://github.com/arghya05/commercecore
 
 **Status:** research / proof-of-concept. Read "What this is NOT" before using in production.
 
@@ -68,6 +69,95 @@ Frontier baselines on the identical set, 3-repeat bootstrap CI: Claude Sonnet 5 
 
 Both are larger than CommerceCore's 1.7B base and neither was fine-tuned for this task — both score far below CommerceCore on both eval sets. This confirms the gain comes from task-specific fine-tuning, not just model scale: a bigger unfine-tuned open model does not solve this task by default, and few-shot examples alone aren't enough to make it competitive here.
 
+## Training logs — the real, complete checkpoint-by-checkpoint record
+
+The final training run: Qwen3-1.7B, QLoRA (NF4 double-quant, BF16 compute, r=16/alpha=32/dropout=0.05), 2,130 examples, 1,200 steps, checkpointed and evaluated every 150 steps. Full raw logs are in `train/results_multitask_clean/` (loss every step, eval + retention every checkpoint) — this table is the checkpoint-level summary:
+
+| Step | Constraint F1 | QueryNER F1 | Retention vs. frozen base | Loss (at that step) |
+|---|---|---|---|---|
+| 150 | 0.708 | 0.625 | 0.597 | 0.31 (at step 99) |
+| 300 | 0.698 | 0.604 | 0.611 | 0.14 (at step 299) |
+| 450 | 0.675 | 0.601 | 0.597 | 0.04 (at step 399) |
+| 600 | 0.690 | 0.630 (peak) | 0.592 | 0.06 (at step 599) |
+| **750 (selected)** | **0.725** | 0.556 | **0.614** (peak) | 0.05 (at step 799) |
+| 900 | 0.725 | 0.614 | 0.490 (low point) | 0.03 (at step 899) |
+| 1050 | 0.750 (peak) | 0.573 | 0.518 | 0.03 (at step 1099) |
+| 1200 (final) | 0.740 | 0.530 | 0.489 (worst) | 0.02 (at step 1199) |
+
+**Why step 750, not the final checkpoint 1200**: retention genuinely declines in the last ~450 steps (0.614 → 0.489) and never recovers, while task performance only marginally improves. That's real, measured forgetting — checked at every checkpoint, not assumed away. Full reasoning in `train/results_multitask_clean/MODEL_SELECTION_DECISION.md`.
+
+Training cost: **$0.90**, 75.2 minutes, on a single RunPod RTX PRO 4500 (32GB). Peak VRAM: 2.13GB (the loaded 4-bit quantized model + LoRA adapter — well under the 32GB available, meaning a much smaller/cheaper GPU could run this same training).
+
+### Loss by epoch (not just by step)
+
+At grad-accumulation batch size 8 over 2,130 examples, one epoch ≈ 266 optimizer steps. 1,200 steps ≈ 4.5 epochs. Loss at approximately each epoch boundary (real values, nearest logged step):
+
+| Epoch | Step | Loss |
+|---|---|---|
+| 1 | 266 | 0.083 |
+| 2 | 532 | 0.073 |
+| 3 | 798 | 0.047 |
+| 4 | 1065 | 0.036 |
+
+Loss drops fast and stays low from epoch 2 onward — consistent with a small, fairly repetitive dataset (2,130 examples over ~4.5 passes). This is also part of why retention degraded late in training (step 900+, epoch ~3.4 onward): the model had already converged on the task loss and additional steps mostly reinforced narrow patterns rather than learning anything new, which is exactly when general-capability drift shows up. Full per-step loss (1,200 rows) is in `train/results_multitask_clean/multitask_training_loss_log.csv`.
+
+### Challenges faced in training — real, specific, not generic
+
+1. **Data repetition vs. dataset size.** With only 2,130 examples and 1,200 steps (grad-accum 8), the model saw each example ~4.5 times. Loss converging to near-zero by epoch 2 is a symptom of a dataset too small/narrow for the step count used — the late-training retention drop (§ above) is a direct, measured consequence. The concrete fix, not yet done: either fewer steps (stop around epoch 2-3) or substantially more, more diverse data.
+2. **Synthetic data quality wasn't caught by automated checks alone.** An early synthetic batch (see "Strategy") passed every mechanical validation check (schema, evidence-span binding, execution correctness) while 70% of it used a generic, repetitive "products with X" phrasing template — found only by manually reading the generated text, not by any automated gate that existed at the time. Fixed by adding an explicit naturalness check afterward; the underlying lesson is that mechanical checks prove internal consistency, not real-world quality, and spot-checking output by hand is not optional.
+3. **A generation-time crash from a genuinely unrenderable scenario.** The synthetic-data generator's "messy/conflicting constraint" mode could produce a scenario like `contains_nuts=true AND contains_nuts=false` simultaneously — Claude correctly refused to paraphrase this into clean JSON and returned prose instead, which crashed the parser with an unhandled exception mid-run. Fixed by catching this as an expected reject-and-retry case, not a fatal error.
+4. **API version mismatches deflated a real baseline score.** `claude-sonnet-5` rejects the `temperature` parameter outright (returns an HTTP 400), which silently zeroed out 2 of 3 repeat measurements in an early baseline run, deflating its measured score from a real 0.59 to a misleading 0.05. Caught by noticing an implausibly low number for a strong model and checking the raw API errors directly, not by trusting the aggregate score.
+
+### Why these specific datasets
+
+- **QueryNER** (1,500 of 2,130 training examples, real/human-annotated): chosen because it's a real, public, CC BY 4.0 licensed benchmark with an existing test split — this is what makes the "beats frontier models on QueryNER" claim independently verifiable by anyone, not just self-reported.
+- **Synthetic query-constraint data** (450 examples): built rather than sourced, because no existing public dataset pairs natural-language shopping queries with structured field/operator/value constraint labels across fashion/grocery/general verticals at the granularity this task needs. Generated with labels fixed in code *before* any LLM call specifically to avoid an LLM silently inventing or dropping a constraint while writing the query.
+- **Synthetic catalog-attribute data** (180 examples): included to test whether a second, related task (raw listing text → structured attributes) could be learned jointly without hurting the primary task — included in training, though not separately benchmarked in this release (see "What this is NOT").
+- **Not used**: no proprietary/scraped ecommerce data. Every real-data source is publicly licensed and re-distributable; every synthetic source is disclosed as such, not blended in silently.
+
+An earlier training run on lower-quality synthetic data (before a naturalness-quality gate was added — see "Strategy" above) is also fully logged in `train/results_scaled/`, kept for transparency rather than deleted once superseded.
+
+## Serving logs — real, measured request/response pairs
+
+Actual logged output from the deployed REST API (`serve/api.py`), running the merged model on a RunPod GPU:
+
+```
+POST /parse-query {"query": "black waterproof trainers under 80 pounds"}
+→ {"query": "black waterproof trainers under 80 pounds",
+   "constraints": [{"field": "color", "op": "eq", "value": "black"}]}
+
+POST /parse-query {"query": "almonds with no added sugar"}
+→ {"query": "almonds with no added sugar",
+   "constraints": [{"field": "contains_added_sugar", "op": "eq", "value": "false"}]}
+
+POST /parse-query {"query": "cordless drill, 2 year warranty minimum"}
+→ {"query": "cordless drill, 2 year warranty minimum",
+   "constraints": [{"field": "warranty_months", "op": "gte", "value": "24"},
+                    {"field": "warranty_months", "op": "gte", "value": "12"}]}
+   (note: real, disclosed imperfection — a duplicate/conflicting constraint,
+   not hidden from this log)
+
+GET /health → {"status": "ok", "model_loaded": true}
+```
+
+Measured latency, real requests, both environments:
+
+| Environment | Load time | Latency/query |
+|---|---|---|
+| RunPod GPU (RTX PRO 4500) | 1.4s | 0.58–1.05s |
+| Local CPU (Apple Silicon, no quantization) | 0.6s | 130–145s |
+
+### Challenges faced in serving — real, specific, not generic
+
+1. **`peft` was imported unconditionally, breaking the common case.** `serve/inference.py` originally did `from peft import PeftModel` at module level, even though most deployments should use the pre-merged model (no adapter, no PEFT needed at all). This meant a fresh install without `peft` — the exact "quick pip install and go" case the serving package is supposed to support — crashed on import. Fixed by moving the import inside the one code path that actually needs it.
+2. **Local environment version mismatch, found only by actually testing on a second machine.** The Mac's default Python (3.9) could only install `transformers` 4.57, a version incompatible with how Qwen3's tokenizer config is structured — it crashed with an obscure `AttributeError` deep in `transformers` internals, not an obvious "wrong version" message. Fixed by using a newer Python (3.13) in a dedicated virtual environment. This would have looked like "it works on my machine" if the local CPU test had been skipped in favor of only testing on the pod.
+3. **The REST API wrapper had no way to point at the merged model at all.** `serve/api.py` only supported the base HF model ID or an adapter path, with no way to load the actual portable, merged artifact this project produces — meaning the documented "one image, deploy anywhere" claim would have failed the moment someone tried it, because the config option to do so didn't exist. Fixed by adding a `COMMERCECORE_BASE_MODEL_PATH` environment variable.
+4. **Eval scripts assumed the original training pod's file layout.** The full-benchmark reproduction script hardcoded paths like `/workspace/models/Qwen3-1.7B` and `/workspace/checkpoints_multitask/step_750` — paths that only existed on the specific RunPod instance used for training. Anyone cloning this repo would have hit an immediate `FileNotFoundError`. Fixed by loading the model directly from its published Hugging Face repo ID and reading eval data from a path relative to the repo itself.
+
+Each of these was found by actually running the thing in a new context (a second machine, a fresh environment, someone else's hypothetical clone) rather than assuming the code that worked once would work everywhere — which is the entire point of testing "runs anywhere" as a claim, not just asserting it.
+
+Full serving test logs (`serve/complete_inference_test.py`, `serve/full_inference_test.py`) run 8–20 queries end-to-end through the actual served model and are included in this repo, along with the exact scripts used to produce them — see "Reproducing the benchmarks yourself" below.
+
 ## Real cost (everything included)
 
 | Item | Cost |
@@ -106,8 +196,18 @@ If you're evaluating this model yourself: expect strong, benchmark-beating perfo
 
 - **Not a complete four-task system.** The original plan scoped four tasks (query-constraint extraction, catalog-attribute normalization, retrieval/matching, search-recovery). Only the first is fully trained and evaluated; catalog-attribute data was included in training but not separately benchmarked; retrieval and search-recovery are untouched.
 - **Not "beats Claude/GPT" in general.** It beats the tested models on the tested tasks, in this evaluation. It has no general reasoning, conversation, or coding capability, and isn't meant to.
-- **Not claiming to be first-of-its-kind.** A closely related approach (QLoRA + synthetic data + small model beating larger ones on ecommerce intent) is already published: [arXiv 2510.21970](https://arxiv.org/abs/2510.21970). We disclose this rather than overstate novelty — see the model card for the full comparison.
+- **Not claiming to be first-of-its-kind** — see "Related work" below for the specific papers this overlaps with and how.
 - **Real, disclosed failure modes**: occasional duplicate/conflicting constraints on complex multi-clause queries; imperfect recall on implicit (non-explicit) attribute values; retention (general-capability preservation) softened in later training steps, which is why an earlier checkpoint was deliberately selected over the final one.
+
+## Related work — honest comparison, not a novelty claim
+
+These are papers found and read during this project that overlap with parts of the approach here. Listed so a reader can judge the actual increment themselves, not take our word for it.
+
+- **[Performance Trade-offs of Optimizing Small Language Models for E-Commerce](https://arxiv.org/abs/2510.21970)** (arXiv 2510.21970) — the closest match. Fine-tunes a 1B Llama 3.2 via QLoRA on synthetic ecommerce data, reports ~99% accuracy on intent classification, close to GPT-4.1. **How this project differs**: different task (multi-field constraint extraction + entity segmentation, not single-label intent classification), different base model, and this project additionally mixes in real human-annotated data (QueryNER) rather than using fully synthetic data. **What we do NOT claim**: that "small model + QLoRA + synthetic data beats bigger models on ecommerce" is a new idea — this paper already established it for a related task.
+- **[EcomGPT: Instruction-tuning Large Language Models with Chain-of-Task Tasks for E-commerce](https://arxiv.org/abs/2308.06966)** (arXiv 2308.06966) — a genuinely multitask ecommerce LLM instruction-tuning approach, which overlaps with this project's decision to train query-constraint extraction and entity segmentation jointly rather than as separate models. Not independently re-benchmarked against this project — flagged here for a reader to compare directly, not ruled out as prior art.
+- **[CuratorKIT: Data Curation and Synthetic Data Generation for LLM Post-Training](https://arxiv.org/abs/2606.21631)** (arXiv 2606.21631) — a published, general-purpose framework for exactly the kind of problem this project's naturalness-quality gate was built to solve (catching synthetic data that passes mechanical checks but fails a real quality bar). This project's gate is narrow and built for one specific failure mode found by manual inspection, not a general framework — CuratorKIT's approach is more mature and general.
+
+If you're aware of closer prior art than what's listed here, it's a real gap in this review, not something to hide — this list reflects one focused research session, not an exhaustive literature survey.
 
 ## Repository structure
 
@@ -123,7 +223,9 @@ commercecore/
 └── runpod_archive/       # Full logs, checkpoints, raw data pulled off the training pod
 ```
 
-## Quick start
+## How to run inference (quick start)
+
+**Option A — plain Python, 5 lines, downloads the model automatically from Hugging Face:**
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -135,6 +237,17 @@ prompt = "Extract shopping constraints from this query: black waterproof trainer
 input_ids = tokenizer(prompt, return_tensors="pt").input_ids
 out = model.generate(input_ids, max_new_tokens=100, do_sample=False)
 print(tokenizer.decode(out[0][input_ids.shape[1]:], skip_special_tokens=True))
+# -> [{"field": "color", "op": "eq", "value": "black"}]
+```
+
+**Option B — the project's own inference class** (`serve/inference.py`, same repo), handles the prompt formatting and JSON parsing for you:
+
+```python
+from serve.inference import CommerceCoreQueryParser
+
+parser = CommerceCoreQueryParser(base_model_path="arghya2030/commercecore-qwen3-1.7b")
+result = parser.parse("black waterproof trainers under 80 pounds")
+print(result)  # -> [{"field": "color", "op": "eq", "value": "black"}]
 ```
 
 Or run the REST API (`serve/api.py`) — same code, runs on RunPod, AWS, Azure, GCP, or a local machine:
